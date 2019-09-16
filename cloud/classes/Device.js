@@ -1,4 +1,3 @@
-const escape = require('escape-html');
 const Base = require('./Base');
 const hat = require('hat');
 class Device extends Base {
