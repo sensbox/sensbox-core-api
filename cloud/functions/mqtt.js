@@ -63,7 +63,7 @@ const createMqttMessage = (uuid, topic, payload) => {
   return mqttMessage.save(null, { useMasterKey: true });
 }
 
-const handlePayload = async (request, influx) => {
+const handlePayload = async (request) => {
   const { payload } = request.params;
   const { agent, metrics } = payload ? payload : {};
   const device = await findDeviceByUUID(agent.uuid);
@@ -85,10 +85,10 @@ const handlePayload = async (request, influx) => {
       fields: { value: metric.value }
     })
   }
-
+  const { InfluxDB } = Parse.Integrations;
   if (postMetrics.length) {
     try {
-      await influx.writePoints(postMetrics, { precision: 'ms' })
+      await InfluxDB.writePoints(postMetrics, { precision: 'ms' });
     } catch (e) {
       throw new Parse.Error(500, err.message);
     }

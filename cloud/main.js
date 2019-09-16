@@ -1,15 +1,20 @@
 const Influx = require('influx');
 
 const Device = require('./classes/Device');
+const Organization = require('./classes/Organization');
 const common = require('./functions/common');
 const mqtt = require('./functions/mqtt');
 
 const influxDSN = process.env.INFLUX_DSN;
+const InfluxDB = new Influx.InfluxDB(influxDSN);
 
-const influx = new Influx.InfluxDB(influxDSN);
+Parse.Integrations = {
+  InfluxDB,
+}
 
 // Before Save Triggers
 Parse.Cloud.beforeSave("Device", async (request) => Device.beforeSave(request));
+Parse.Cloud.beforeSave("Organization", async (request) => Organization.beforeSave(request));
 
 // After Save Triggers
 // Parse.Cloud.afterSave("Centro", async (request) => Centro.afterSave(request));
@@ -25,4 +30,4 @@ Parse.Cloud.define('ping', common.ping);
 Parse.Cloud.define('mqttAuthorizeClient', mqtt.authorizeClient);
 Parse.Cloud.define('mqttConnectDevice', (request) => mqtt.setDeviceStatus(request, true));
 Parse.Cloud.define('mqttDisconnectDevice', (request) => mqtt.setDeviceStatus(request, false));
-Parse.Cloud.define('mqttHandlePayload', (request) => mqtt.handlePayload(request, influx));
+Parse.Cloud.define('mqttHandlePayload', mqtt.handlePayload);
