@@ -2,8 +2,7 @@ const Base = require('./Base');
 class Zone extends Base {
 
   constructor() {
-    const CLASS_NAME = "Zone";
-    super(CLASS_NAME);
+    super(Zone.prototype.constructor.name);
   }
 
   static async beforeSave(request){

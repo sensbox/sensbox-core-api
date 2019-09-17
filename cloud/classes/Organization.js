@@ -2,8 +2,7 @@ const Base = require('./Base');
 class Organization extends Base {
 
   constructor() {
-    const CLASS_NAME = "Organization";
-    super(CLASS_NAME);
+    super(Organization.prototype.constructor.name);
   }
 
   static async beforeSave(request){

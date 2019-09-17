@@ -3,8 +3,7 @@ const hat = require('hat');
 class Device extends Base {
 
   constructor() {
-    const CLASS_NAME = "Device";
-    super(CLASS_NAME);
+    super(Device.prototype.constructor.name);
   }
 
   static async beforeSave(request){
