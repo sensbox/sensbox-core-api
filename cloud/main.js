@@ -3,6 +3,7 @@ const Influx = require('influx');
 const Device = require('./classes/Device');
 const Organization = require('./classes/Organization');
 const Zone = require('./classes/Zone');
+const Sensor = require('./classes/Sensor');
 const common = require('./functions/common');
 const mqtt = require('./functions/mqtt');
 
@@ -17,16 +18,17 @@ Parse.Integrations = {
 Parse.Cloud.beforeSave("Device", Device.beforeSave);
 Parse.Cloud.beforeSave("Organization", Organization.beforeSave);
 Parse.Cloud.beforeSave("Zone", Zone.beforeSave);
+Parse.Cloud.beforeSave("Sensor", Sensor.beforeSave);
 
 // After Save Triggers
-// Parse.Cloud.afterSave("Centro", async (request) => Centro.afterSave(request));
+// Parse.Cloud.afterSave("Device", Device.afterSave);
 
 // After Find Triggers
+Parse.Cloud.afterFind('Device', Device.afterFind);
 
 
 // Common Cloud Functions
 Parse.Cloud.define('ping', common.ping);
-
 
 // Mqtt Cloud functions
 Parse.Cloud.define('mqttAuthorizeClient', mqtt.authorizeClient);
