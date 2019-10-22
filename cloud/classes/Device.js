@@ -7,49 +7,55 @@ class Device extends Base {
   }
 
   static async beforeSave(request){
-    super.beforeSave(request);
+    const { object, original } = request;
+    await super.beforeSave(request);
+    object.unset("sensors");
+    // prevent query for uuid when not changed
+    if (object.isNew() || object.get("uuid") !== original.get("uuid")){
+      const query = new Parse.Query(new Device());
+      const uuid = request.object.get("uuid");
+      query.equalTo("uuid", uuid);
+      const result = await query.first({ useMasterKey: true });
+      if (result && request.object.id !== result.id) throw new Parse.Error(400, JSON.stringify({ 
+        uuid: [`${uuid} is already registered.`]
+      }));
 
-    const query = new Parse.Query(new Device());
-    const uuid = request.object.get("uuid");
-    query.equalTo("uuid", uuid);
-    const result = await query.first({ useMasterKey: true });
-
-    if (result && request.object.id !== result.id) throw new Parse.Error(400, JSON.stringify({ 
-      uuid: [`${uuid} is already registered.`]
-    }));
-
-    const key = hat();
-    if (request.object.isNew()) {
-      request.object.set("key", key);
+      if (request.object.isNew()) {
+        const key = hat();
+        request.object.set("key", key);
+      }
     }
   }
 
   static async afterFind(request){
-    const { objects } = request;
+    const { objects, master: isMaster} = request;
     
     // If no Devices, early return empty array 
     if (objects.length === 0 ) return [];
 
-    const Sensor = Parse.Object.extend("Sensor");
-    const response = await Promise.all(objects.map(async device => {
-      const query = new Parse.Query(new Sensor());
-      query.equalTo("device", device);
-      return query.find().then(sensors => device.set("sensors", sensors.map( s => s.toJSON()))); 
-    }));
+    let response;
+    // prevent fetch sensors when request isn't made from frontend
+    if (isMaster){
+      response = objects;
+    } else {
+      const Sensor = Parse.Object.extend("Sensor");
+      response = await Promise.all(objects.map(async device => {
+        const query = new Parse.Query(new Sensor());
+        query.equalTo("device", device);
+        return query.find({ useMasterKey: true }).then(sensors => device.set("sensors", sensors.map( s => s.toJSON()))); 
+      }));
+    }
     return response;
   }
 
   static async afterSave(request){
     const device = request.object;
-    // console.log("SENSORS", request.original);
-    // const Investigador = Parse.Object.extend("Investigador");
-    // const query = new Parse.Query(new Investigador());
-    // query.equalTo("centro", centro);
-    // const investigadores = await query.find({ useMasterKey: true });
-    // investigadores.forEach((investigador) => { 
-    //   investigador.set("centro", centro);
-    //   investigador.save();
-    // });
+    const Sensor = Parse.Object.extend("Sensor");
+    const query = new Parse.Query(new Sensor());
+    query.equalTo("device", device.toPointer());
+    const sensors = await query.find({ useMasterKey: true });
+    device.set("sensors", sensors.map( s => s.toJSON())); 
+    return device;
   }
 
 }

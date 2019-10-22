@@ -6,7 +6,7 @@ class Organization extends Base {
   }
 
   static async beforeSave(request){
-    super.beforeSave(request);
+    await super.beforeSave(request);
     const query = new Parse.Query(new Organization());
     const name = request.object.get("name");
     query.equalTo("name", name);
@@ -16,6 +16,14 @@ class Organization extends Base {
     }));
   }
 
+  static async afterDelete(request){
+    const { object: organization } = request;
+    const Zone = Parse.Object.extend("Zone");
+    const query = new Parse.Query(new Zone());
+    query.equalTo("organization", organization.toPointer());
+    const zones = await query.find({ useMasterKey: true });
+    Parse.Object.destroyAll(zones, { useMasterKey: true });
+  }
 }
 
 module.exports = Organization;

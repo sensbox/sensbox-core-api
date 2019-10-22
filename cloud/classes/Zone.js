@@ -6,7 +6,7 @@ class Zone extends Base {
   }
 
   static async beforeSave(request){
-    super.beforeSave(request);
+    await super.beforeSave(request);
   }
 
 }

@@ -2,6 +2,7 @@ const DEVICE_MESSAGE_TOPIC= 'agent/message';
 const DEVICE_CONNECTED_TOPIC= 'agent/connected';
 const DEVICE_DISCONNECTED_TOPIC= 'agent/disconnected';
 const ROLE_USER = 'ROLE_USER';
+const ROLE_SUPER_ADMIN = 'ROLE_SUPER_ADMIN';
 
 const getFlatDevice = (device) => {
   const flatDevice = device.toJSON();
@@ -18,6 +19,22 @@ const findDeviceByUUID = async (uuid) => {
   const device = await query.first({ useMasterKey: true });
   if (!device) throw new Parse.Error(404, `Device ${uuid} not found.`);
   return device;
+}
+
+const findSensorsByDevice = async (device) => {
+  const Sensor = Parse.Object.extend("Sensor");
+  const query = new Parse.Query(Sensor);
+  query.equalTo("device", device.toPointer());
+  return query.find({ useMasterKey: true });
+}
+
+const disconnectSensors = async (sensorsList, opts) => {
+  const options = Object.assign({ commitSave: true }, opts );
+  sensorsList.forEach(s => s.set("connected", false));
+  if (options.commitSave) {
+    await Parse.Object.saveAll(sensorsList, { useMasterKey: true });
+  }
+  return sensorsList;
 }
 
 const authorizeClient = async (request) => {
@@ -40,11 +57,17 @@ const setDeviceStatus = async (request, connected) => {
   // console.log(request.master);
   const device = await findDeviceByUUID(uuid);
   device.set("connected", connected);
+
+  const sensors = await findSensorsByDevice(device);
+
   const currentTime = new Date();
   if (connected) {
     device.set("connectedAt", currentTime);
+    await createMqttMessage(uuid, DEVICE_CONNECTED_TOPIC, { agent: { uuid }});
   } else {
     device.set("disconnectedAt", currentTime);
+    await createMqttMessage(uuid, DEVICE_DISCONNECTED_TOPIC, { agent: { uuid }});
+    await disconnectSensors(sensors);
   }
   await device.save(null, { useMasterKey: true });
   return { connected, device: getFlatDevice(device) };
@@ -57,9 +80,11 @@ const createMqttMessage = (uuid, topic, payload) => {
   mqttMessage.set("topic", topic);
   mqttMessage.set("payload", payload);
   mqttMessage.set("protocol", 'mqtt');
-  var roleACL = new Parse.ACL();
-  roleACL.setRoleReadAccess(ROLE_USER, true);
-  mqttMessage.setACL(roleACL);
+  // var acl = new Parse.ACL();
+  // acl.setRoleReadAccess(ROLE_USER, true);
+  // acl.setRoleReadAccess(ROLE_SUPER_ADMIN, true);
+  // acl.setPublicReadAccess(false);
+  // mqttMessage.setACL(acl);
   return mqttMessage.save(null, { useMasterKey: true });
 }
 
@@ -67,14 +92,26 @@ const handlePayload = async (request) => {
   const { payload } = request.params;
   const { agent, metrics } = payload ? payload : {};
   const device = await findDeviceByUUID(agent.uuid);
+  // If device is not connected return inmediatly
+  if(!device.get("connected")) return;
+
   device.set("lastReportAt", new Date());
   device.set("connected", true);
   await device.save(null, { useMasterKey: true });
   await createMqttMessage(agent.uuid, DEVICE_MESSAGE_TOPIC, payload);
+
+  const sensors = await findSensorsByDevice(device);
+  await disconnectSensors(sensors, { commitSave: false });
   let postMetrics = []
   // Store Metrics
   // TODO: Verify is metric is registered for store
   for (let metric of metrics) {
+    const sensor = sensors.find( s => s.get("name") === metric.type);
+    if (sensor) {
+      sensor.set("connected", true);
+      sensor.set("latestValue", metric.value.toString());
+    }
+    Parse.Object.saveAll(sensors, { useMasterKey: true });
     postMetrics.push({
       timestamp: metric.time,
       measurement: metric.type,

@@ -1,5 +1,5 @@
 const Base = require('./Base');
-const hat = require('hat');
+
 class Sensor extends Base {
 
   constructor() {
@@ -7,15 +7,19 @@ class Sensor extends Base {
   }
 
   static async beforeSave(request){
-    super.beforeSave(request);
-    const query = new Parse.Query(new Sensor());
-    const name = request.object.get("name");
-    query.equalTo("name", name);
-    query.equalTo("device", request.object.get("device"));
-    const result = await query.first({ useMasterKey: true });
-    if (result && request.object.id !== result.id) throw new Parse.Error(400, JSON.stringify({ 
-      name: [`${name} is already registered.`]
-    }));
+    const { object, original } = request;
+    await super.beforeSave(request);
+    // prevent query for name when not changed
+    if (object.isNew() || object.get("name") !== original.get("name")){
+      const query = new Parse.Query(new Sensor());
+      const name = object.get("name");
+      query.equalTo("name", name);
+      query.equalTo("device", object.get("device"));
+      const result = await query.first({ useMasterKey: true });
+      if (result && object.id !== result.id) throw new Parse.Error(400, JSON.stringify({ 
+        name: [`${name} is already registered.`]
+      }));
+    }
   }
 
 }
