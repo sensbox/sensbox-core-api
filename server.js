@@ -6,6 +6,8 @@ const masterKey = process.env.MASTER_KEY;
 const appId = process.env.APP_ID;
 const mongoDSN = process.env.MONGO_DSN;
 const redisDSN = process.env.REDIS_DSN;
+const port = process.env.PORT;
+const serverURL = `http://localhost:${port}/parse`;
 
 var api = new ParseServer({
   databaseURI: mongoDSN, // Connection string for your MongoDB database
@@ -21,9 +23,9 @@ var api = new ParseServer({
   // mountPlayground: true,
   // graphQLPath: '/graphql',
   // playgroundPath: '/playground',
-  serverURL: 'http://localhost:4040/parse', // Don't forget to change to https if needed
+  serverURL, // Don't forget to change to https if needed
   liveQuery: {
-    classNames: ['DeviceMessage'],
+    classNames: ['DeviceMessage', 'Sensor'],
     redisURL: redisDSN,
   },
   protectedFields: {
@@ -41,7 +43,7 @@ var dashboard = new ParseDashboard({
 	apps: [
     {
       appName: "Sensbox Api",
-      serverURL: "http://localhost:4040/parse",
+      serverURL,
       // graphQLServerURL: "http://localhost:4040/parse/graphql",
       appId,
       masterKey
@@ -65,5 +67,5 @@ app.use('/parse', api);
 app.use('/dashboard', dashboard);
 
 const httpServer = require('http').createServer(app);
-httpServer.listen(4040, () => console.log('Server running on http://core-api:4040'));
+httpServer.listen(port, () => console.log(`Server running on ${serverURL}`));
 ParseServer.createLiveQueryServer(httpServer, { });
