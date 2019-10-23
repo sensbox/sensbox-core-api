@@ -1,6 +1,6 @@
-var express = require('express');
-var ParseServer = require('parse-server').ParseServer;
-var ParseDashboard = require('parse-dashboard');
+const express = require('express');
+const { ParseServer } = require('parse-server');
+const ParseDashboard = require('parse-dashboard');
 
 const masterKey = process.env.MASTER_KEY;
 const appId = process.env.APP_ID;
@@ -9,7 +9,7 @@ const redisDSN = process.env.REDIS_DSN;
 const port = process.env.PORT;
 const serverURL = `http://localhost:${port}/parse`;
 
-var api = new ParseServer({
+const api = new ParseServer({
   databaseURI: mongoDSN, // Connection string for your MongoDB database
   cloud: './cloud/main.js', // Absolute path to your Cloud Code
   allowClientClassCreation: false,
@@ -30,35 +30,35 @@ var api = new ParseServer({
   },
   protectedFields: {
     Device: {
-      "*": ["key"],
+      '*': ['key'],
       // "role:moderator": ["sin"],
       // "role:admin": []
-    }
-  }
+    },
+  },
 });
 
-var options = { allowInsecureHTTP: Boolean(process.env.ALLOW_INSECURE_HTTP) || false };
+const options = { allowInsecureHTTP: Boolean(process.env.ALLOW_INSECURE_HTTP) || false };
 
-var dashboard = new ParseDashboard({
-	apps: [
+const dashboard = new ParseDashboard({
+  apps: [
     {
-      appName: "Sensbox Api",
+      appName: 'Sensbox Api',
       serverURL,
       // graphQLServerURL: "http://localhost:4040/parse/graphql",
       appId,
-      masterKey
-    }
+      masterKey,
+    },
   ],
   users: [
     {
-      user:"admin",
-      pass:"$2y$12$s4PzoNQ/l02aUppmPsEyyuJOtgyEDHw86/nQxhAGD5Xkd2BSSlSO6"
-    }
+      user: 'admin',
+      pass: '$2y$12$s4PzoNQ/l02aUppmPsEyyuJOtgyEDHw86/nQxhAGD5Xkd2BSSlSO6',
+    },
   ],
-  useEncryptedPasswords: true
+  useEncryptedPasswords: true,
 }, options);
 
-var app = express();
+const app = express();
 
 
 // make the Parse Server available at /parse
@@ -67,5 +67,7 @@ app.use('/parse', api);
 app.use('/dashboard', dashboard);
 
 const httpServer = require('http').createServer(app);
+
+// eslint-disable-next-line no-console
 httpServer.listen(port, () => console.log(`Server running on ${serverURL}`));
 ParseServer.createLiveQueryServer(httpServer, { });
