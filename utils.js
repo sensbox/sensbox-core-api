@@ -5,5 +5,4 @@ const nullParser = (opt) => {
   return opt;
 };
 
-// eslint-disable-next-line import/prefer-default-export
-export { nullParser };
+module.exports = { nullParser };
