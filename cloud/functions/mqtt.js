@@ -53,7 +53,6 @@ const authorizeClient = async (request) => {
   return { authorized: true, device: getFlatDevice(device) };
 };
 
-
 const createMqttMessage = (uuid, topic, payload) => {
   const MqttMessage = Parse.Object.extend('DeviceMessage');
   const mqttMessage = new MqttMessage();
@@ -83,7 +82,9 @@ const setDeviceStatus = async (request, connected) => {
     await createMqttMessage(uuid, DEVICE_CONNECTED_TOPIC, { agent: { uuid } });
   } else {
     device.set('disconnectedAt', currentTime);
-    await createMqttMessage(uuid, DEVICE_DISCONNECTED_TOPIC, { agent: { uuid } });
+    await createMqttMessage(uuid, DEVICE_DISCONNECTED_TOPIC, {
+      agent: { uuid },
+    });
     await disconnectSensors(sensors);
   }
   await device.save(null, { useMasterKey: true });

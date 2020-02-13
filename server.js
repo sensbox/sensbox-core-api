@@ -18,6 +18,7 @@ const api = new ParseServer({
   logsFolder: null,
   verbose: false,
   silent: false,
+  enableAnonymousUsers: false,
   // fileKey: 'optionalFileKey',
   // mountGraphQL: true,
   // mountPlayground: true,
@@ -37,32 +38,43 @@ const api = new ParseServer({
   },
 });
 
-const options = { allowInsecureHTTP: Boolean(process.env.ALLOW_INSECURE_HTTP) || false };
-
-const dashboard = new ParseDashboard({
-  apps: [
-    {
-      appName: 'Sensbox Api',
-      serverURL,
-      // graphQLServerURL: "http://localhost:4040/parse/graphql",
-      appId,
-      masterKey,
-    },
-  ],
-  users: [
-    {
-      user: 'admin',
-      pass: '$2y$12$s4PzoNQ/l02aUppmPsEyyuJOtgyEDHw86/nQxhAGD5Xkd2BSSlSO6',
-    },
-  ],
-  useEncryptedPasswords: true,
-}, options);
+const dashboard = new ParseDashboard(
+  {
+    apps: [
+      {
+        appName: 'Sensbox Api',
+        serverURL,
+        // graphQLServerURL: "http://localhost:4040/parse/graphql",
+        appId,
+        masterKey,
+      },
+    ],
+    users: [
+      {
+        user: 'admin',
+        pass: '$2y$12$s4PzoNQ/l02aUppmPsEyyuJOtgyEDHw86/nQxhAGD5Xkd2BSSlSO6',
+      },
+    ],
+    useEncryptedPasswords: true,
+  },
+  { allowInsecureHTTP: Boolean(process.env.ALLOW_INSECURE_HTTP) || false },
+);
 
 const app = express();
 
+const overrideParseServerHeaders = (req, res, next) => {
+  const oldJson = res.json;
+  res.json = (...args) => {
+    res.removeHeader('x-powered-by');
+    // do anything you wanna do with response before Parse Server calls .json
+    oldJson.apply(res, args);
+  };
+  next();
+};
 
 // make the Parse Server available at /parse
-app.use('/parse', api);
+app.use('/parse', overrideParseServerHeaders, api);
+
 // make the Parse Dashboard available at /dashboard
 app.use('/dashboard', dashboard);
 
@@ -70,4 +82,4 @@ const httpServer = require('http').createServer(app);
 
 // eslint-disable-next-line no-console
 httpServer.listen(port, () => console.log(`Server running on ${serverURL}`));
-ParseServer.createLiveQueryServer(httpServer, { });
+ParseServer.createLiveQueryServer(httpServer, {});

@@ -1,19 +1,11 @@
 const { Parse } = global;
 const Influx = require('influx');
 
-const {
-  Dashboard,
-  Device,
-  Organization,
-  Zone,
-  Account,
-  Sensor,
-} = require('./classes');
+// eslint-disable-next-line object-curly-newline
+const { Dashboard, Device, Organization, Zone, Account, Sensor } = require('./classes');
+const { Common, Mqtt, Influx: InfluxFn, Sensor: SensorFn } = require('./functions');
 
 // const { secure } = require('./utils');
-const common = require('./functions/common');
-const mqtt = require('./functions/mqtt');
-const influx = require('./functions/influx');
 
 const influxDSN = process.env.INFLUX_DSN;
 const InfluxDB = new Influx.InfluxDB(influxDSN);
@@ -57,13 +49,19 @@ Parse.Cloud.afterFind('Account', Account.afterFind);
 Parse.Cloud.afterFind('Device', Device.afterFind);
 
 // Common Cloud Functions
-Parse.Cloud.define('ping', common.ping);
-Parse.Cloud.define('findUsersByText', common.findUsersByText);
-Parse.Cloud.define('requestObjectPermissions', common.requestObjectPermissions);
-Parse.Cloud.define('storeFetch', influx.fetch);
+Parse.Cloud.define('ping', Common.ping);
+Parse.Cloud.define('findUsersByText', Common.findUsersByText);
+Parse.Cloud.define('requestObjectPermissions', Common.requestObjectPermissions);
+
+// Sensors Cloud Functions
+Parse.Cloud.define('findSensorsByDevices', SensorFn.findSensorsByDevices);
+
+// Influx Cloud Functions
+Parse.Cloud.define('metricsStoreFetch', InfluxFn.fetch);
+Parse.Cloud.define('metricsStoreFetchSeries', InfluxFn.fetchSeries);
 
 // Mqtt Cloud functions
-Parse.Cloud.define('mqttAuthorizeClient', mqtt.authorizeClient);
-Parse.Cloud.define('mqttConnectDevice', (request) => mqtt.setDeviceStatus(request, true));
-Parse.Cloud.define('mqttDisconnectDevice', (request) => mqtt.setDeviceStatus(request, false));
-Parse.Cloud.define('mqttHandlePayload', mqtt.handlePayload);
+Parse.Cloud.define('mqttAuthorizeClient', Mqtt.authorizeClient);
+Parse.Cloud.define('mqttConnectDevice', (request) => Mqtt.setDeviceStatus(request, true));
+Parse.Cloud.define('mqttDisconnectDevice', (request) => Mqtt.setDeviceStatus(request, false));
+Parse.Cloud.define('mqttHandlePayload', Mqtt.handlePayload);

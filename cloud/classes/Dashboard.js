@@ -1,7 +1,6 @@
+const { Parse } = global;
 const hat = require('hat');
 const Base = require('./Base');
-
-const { Parse } = global;
 
 class Dashboard extends Base {
   constructor() {

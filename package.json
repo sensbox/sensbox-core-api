@@ -6,6 +6,7 @@
   "scripts": {
     "test": "echo \"Error: no test specified\" && exit 1",
     "dev": "nodemon -L . --ignore './logs/*'",
+    "debug": "nodemon --inspect=0.0.0.0 -L . --ignore './logs/*'",
     "inspect": "node --inspect .",
     "start": "node .",
     "eslint": "eslint --debug --ext .js cloud"
@@ -19,7 +20,7 @@
     "hat": "0.0.3",
     "influx": "^5.4.1",
     "parse-dashboard": "^2.0.2",
-    "parse-server": "^3.9.0",
+    "parse-server": "^3.10.0",
     "saslprep": "^1.0.3"
   },
   "devDependencies": {

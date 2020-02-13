@@ -1,14 +1,17 @@
 const { Parse } = global;
 
 /* eslint-disable no-underscore-dangle */
-const flatAccount = (account) => ({
-  userId: account.get('user')._getId(),
-  accountId: account._getId(),
-  profilePhoto: account.get('user').get('profilePhoto') ? account.get('user').get('profilePhoto').url() : null,
-  username: account.get('username'),
-  firstName: account.get('firstName'),
-  lastName: account.get('lastName'),
-});
+const flatAccount = (account) => {
+  const profilePhoto = account.get('user').get('profilePhoto');
+  return {
+    userId: account.get('user')._getId(),
+    accountId: account._getId(),
+    profilePhoto: profilePhoto || null,
+    username: account.get('username'),
+    firstName: account.get('firstName'),
+    lastName: account.get('lastName'),
+  };
+};
 
 const ping = () => ({
   msg: 'pong',
@@ -54,10 +57,11 @@ const findUsersByText = async (request) => {
   return result.map((a) => flatAccount(a));
 };
 
-
 const requestObjectPermissions = async (request) => {
   const { className, objectId } = request.params;
-  if (!(className && objectId)) throw new Parse.Error(400, 'Invalid Parameters: className and objectId should be provided');
+  if (!(className && objectId)) {
+    throw new Parse.Error(400, 'Invalid Parameters: className and objectId should be provided');
+  }
   const objectQuery = new Parse.Query(className);
   const object = await objectQuery.get(objectId, { useMasterKey: true });
   const ACL = object.getACL();

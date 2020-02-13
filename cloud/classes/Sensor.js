@@ -11,15 +11,18 @@ class Sensor extends Base {
     await super.beforeSave(request);
     // prevent query for name when not changed
     if (object.isNew() || object.get('name') !== original.get('name')) {
-      const query = new Parse.Query(new Sensor());
+      const query = new Parse.Query('Sensor');
       const name = object.get('name');
       query.equalTo('name', name);
       query.equalTo('device', object.get('device'));
       const result = await query.first({ useMasterKey: true });
       if (result && object.id !== result.id) {
-        throw new Parse.Error(400, JSON.stringify({
-          name: [`${name} is already registered.`],
-        }));
+        throw new Parse.Error(
+          400,
+          JSON.stringify({
+            name: [`${name} is already registered.`],
+          }),
+        );
       }
     }
   }

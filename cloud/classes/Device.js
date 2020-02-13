@@ -1,3 +1,5 @@
+/* eslint-disable function-paren-newline */
+/* eslint-disable implicit-arrow-linebreak */
 const { Parse } = global;
 const hat = require('hat');
 const Base = require('./Base');
@@ -10,17 +12,20 @@ class Device extends Base {
   static async beforeSave(request) {
     const { object, original } = request;
     await super.beforeSave(request);
-    object.unset('sensors');
+    // object.unset('sensors');
     // prevent query for uuid when not changed
     if (object.isNew() || object.get('uuid') !== original.get('uuid')) {
-      const query = new Parse.Query(new Device());
+      const query = new Parse.Query('Device');
       const uuid = request.object.get('uuid');
       query.equalTo('uuid', uuid);
       const result = await query.first({ useMasterKey: true });
       if (result && request.object.id !== result.id) {
-        throw new Parse.Error(400, JSON.stringify({
-          uuid: [`${uuid} is already registered.`],
-        }));
+        throw new Parse.Error(
+          400,
+          JSON.stringify({
+            uuid: [`${uuid} is already registered.`],
+          }),
+        );
       }
 
       if (request.object.isNew()) {
@@ -41,23 +46,31 @@ class Device extends Base {
     if (isMaster) {
       response = objects;
     } else {
-      const Sensor = Parse.Object.extend('Sensor');
-      response = await Promise.all(objects.map(async (device) => {
-        const query = new Parse.Query(new Sensor());
-        query.equalTo('device', device);
-        return query.find({ useMasterKey: true }).then((sensors) => device.set('sensors', sensors.map((s) => s.toJSON())));
-      }));
+      response = await Promise.all(
+        objects.map(async (device) => {
+          const query = new Parse.Query('Sensor');
+          query.equalTo('device', device);
+          return query.find({ useMasterKey: true }).then((sensors) =>
+            device.set(
+              'sensors',
+              sensors.map((s) => s.toJSON()),
+            ),
+          );
+        }),
+      );
     }
     return response;
   }
 
   static async afterSave(request) {
     const device = request.object;
-    const Sensor = Parse.Object.extend('Sensor');
-    const query = new Parse.Query(new Sensor());
+    const query = new Parse.Query('Sensor');
     query.equalTo('device', device.toPointer());
     const sensors = await query.find({ useMasterKey: true });
-    device.set('sensors', sensors.map((s) => s.toJSON()));
+    device.set(
+      'sensors',
+      sensors.map((s) => s.toJSON()),
+    );
     return device;
   }
 }

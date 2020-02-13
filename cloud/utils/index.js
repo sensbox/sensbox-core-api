@@ -23,7 +23,29 @@ function secure(callback) {
   };
 }
 
+function getArraysIntersection(list1, list2, ...otherLists) {
+  const result = [];
+
+  // eslint-disable-next-line no-plusplus
+  for (let i = 0; i < list1.length; i++) {
+    const item1 = list1[i];
+    let found = false;
+    // eslint-disable-next-line no-plusplus
+    for (let j = 0; j < list2.length && !found; j++) {
+      found = JSON.stringify(item1) === JSON.stringify(list2[j]);
+    }
+    if (found === true) {
+      result.push(item1);
+    }
+  }
+
+  return otherLists.length
+    ? getArraysIntersection(result, otherLists.shift(), ...otherLists)
+    : result;
+}
+
 module.exports = {
   clearSessionsFromUser,
   secure,
+  getArraysIntersection,
 };
