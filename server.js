@@ -1,6 +1,7 @@
 const express = require('express');
 const { ParseServer } = require('parse-server');
 const ParseDashboard = require('parse-dashboard');
+const { nullParser } = require('./utils');
 
 const masterKey = process.env.MASTER_KEY;
 const appId = process.env.APP_ID;
@@ -8,6 +9,9 @@ const mongoDSN = process.env.MONGO_DSN;
 const redisDSN = process.env.REDIS_DSN;
 const port = process.env.PORT;
 const serverURL = `http://localhost:${port}/parse`;
+const logsFolder = nullParser(process.env.PARSE_SERVER_LOGS_FOLDER);
+const defaultDashboardUser = process.env.PARSE_SERVER_DASHBOARD_USER;
+const defaultDashboardPass = process.env.PARSE_SERVER_DASHBOARD_PASS;
 
 const api = new ParseServer({
   databaseURI: mongoDSN, // Connection string for your MongoDB database
@@ -15,7 +19,7 @@ const api = new ParseServer({
   allowClientClassCreation: false,
   appId,
   masterKey, // Keep this key secret!
-  logsFolder: null,
+  logsFolder,
   verbose: false,
   silent: false,
   enableAnonymousUsers: false,
@@ -51,8 +55,8 @@ const dashboard = new ParseDashboard(
     ],
     users: [
       {
-        user: 'admin',
-        pass: '$2y$12$s4PzoNQ/l02aUppmPsEyyuJOtgyEDHw86/nQxhAGD5Xkd2BSSlSO6',
+        user: defaultDashboardUser,
+        pass: defaultDashboardPass,
       },
     ],
     useEncryptedPasswords: true,
