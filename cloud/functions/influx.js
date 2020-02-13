@@ -24,6 +24,7 @@ const fetch = async (request) => {
     to = new Date(),
     resolution = 100,
     fill = 'null',
+    aggregation = 'mean',
     queryIdentifier,
   } = request.params;
 
@@ -54,7 +55,7 @@ const fetch = async (request) => {
 
   const results = await InfluxDB.query(
     `
-    select mean(value) as value
+    select ${aggregation}(value) as value
     FROM ${metrics.join(',')}
     WHERE ${where}
     GROUP BY ${groupBy}
