@@ -9,7 +9,8 @@
     "debug": "nodemon --inspect=0.0.0.0 -L . --ignore './logs/*'",
     "inspect": "node --inspect .",
     "start": "node .",
-    "eslint": "eslint --debug --ext .js cloud"
+    "eslint": "eslint --debug --ext .js cloud",
+    "importschema" : "mongoimport --host mongodb-server --db sensbox --collection _SCHEMA --authenticationDatabase admin --username ${MONGO_USER} --password ${MONGO_PASS} --file ./seeds/_SCHEMA.json"
   },
   "author": "",
   "license": "MIT",
