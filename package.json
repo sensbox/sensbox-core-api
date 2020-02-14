@@ -10,7 +10,10 @@
     "inspect": "node --inspect .",
     "start": "node .",
     "eslint": "eslint --debug --ext .js cloud",
-    "importschema" : "mongoimport --host mongodb-server --db sensbox --collection _SCHEMA --authenticationDatabase admin --username ${MONGO_USER} --password ${MONGO_PASS} --file ./seeds/_SCHEMA.json"
+    "seed" : "for filename in ./seeds/*; do mongoimport --uri ${MONGO_DSN} --file $filename;  done",
+    "exportCollection": "TODO: //command to export a collection to a file in the seeds path",
+    "exportDB": "mongodump --uri ${MONGO_DSN} -o './backups/'$( date -Iseconds)",
+    "importDB": "mongorestore --uri ${MONGO_DSN}"
   },
   "author": "",
   "license": "MIT",

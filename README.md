@@ -38,3 +38,20 @@ The following is a list of the related microservices that compose the suite:
     docker-compose up 
     ```
 5. enjoy the Sensbox Suite.
+
+## Import/Export Database
+- to Create a backup of the Mongo Database you can run the following script:
+
+    ```
+    npm run exportDB
+    ```
+    this command will create a dump for the entire database under the backups folder, named as a timestamp.
+
+- to **Restore** the Mongo Database from a backup file, put the file under the **backups** directory then run the follow command:
+
+    ```
+    npm run importDB <filename> 
+    ```
+
+    this command automatically will restore the sensbox database.
+
