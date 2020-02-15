@@ -1,5 +1,7 @@
 FROM node:lts
 WORKDIR /srv/node-scripts/
+ARG NPM_RUN_SCRIPT=start
+ENV NPM_RUN_SCRIPT ${NPM_RUN_SCRIPT}
 
 # Install mongo functionalities
 RUN wget -qO - http://www.mongodb.org/static/pgp/server-4.2.asc | apt-key add - &&\
@@ -14,5 +16,4 @@ ENV NPM_CONFIG_LOGLEVEL warn
 RUN npm install
 # Expose the listening port of your app
 EXPOSE ${PORT}
-
-CMD [ "npm", "run", "dev" ]
+CMD ["sh", "-c", "npm run ${NPM_RUN_SCRIPT}"]
