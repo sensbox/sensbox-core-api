@@ -10,7 +10,10 @@ RUN wget -qO - http://www.mongodb.org/static/pgp/server-4.2.asc | apt-key add - 
     apt-get install -y mongodb-org-tools
 
 # Bundle APP files
-COPY package.json .
+COPY package.json server.js ./
+COPY cloud ./cloud
+COPY seeds ./seeds
+
 # Install app dependencies
 ENV NPM_CONFIG_LOGLEVEL warn
 RUN npm install
