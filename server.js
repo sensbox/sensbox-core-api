@@ -4,7 +4,7 @@ const { ParseServer } = require('parse-server');
 const ParseDashboard = require('parse-dashboard');
 const { nullParser } = require('./cloud/utils');
 
-const masterKey = process.env.MASTER_KEY;
+const masterKey = process.env.PARSE_SERVER_MASTER_KEY;
 const appId = process.env.APP_ID;
 const mongoDSN = process.env.MONGO_DSN;
 const redisDSN = process.env.REDIS_DSN;
