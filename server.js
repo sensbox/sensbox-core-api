@@ -1,7 +1,8 @@
+const http = require('http');
 const express = require('express');
 const { ParseServer } = require('parse-server');
 const ParseDashboard = require('parse-dashboard');
-const { nullParser } = require('./utils');
+const { nullParser } = require('./cloud/utils');
 
 const masterKey = process.env.MASTER_KEY;
 const appId = process.env.APP_ID;
@@ -82,7 +83,7 @@ app.use('/parse', overrideParseServerHeaders, api);
 // make the Parse Dashboard available at /dashboard
 app.use('/dashboard', dashboard);
 
-const httpServer = require('http').createServer(app);
+const httpServer = http.createServer(app);
 
 // eslint-disable-next-line no-console
 httpServer.listen(port, () => console.log(`Server running on ${serverURL}`));
