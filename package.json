@@ -9,7 +9,11 @@
     "debug": "nodemon --inspect=0.0.0.0 -L . --ignore './logs/*'",
     "inspect": "node --inspect .",
     "start": "node .",
-    "eslint": "eslint --debug --ext .js cloud"
+    "eslint": "eslint --debug --ext .js cloud",
+    "seed" : "for filename in ./seeds/*; do mongoimport --uri ${MONGO_DSN} --file $filename;  done",
+    "exportCollection": "TODO: //command to export a collection to a file in the seeds path",
+    "exportDB": "mongodump --uri ${MONGO_DSN} -o './backups/'$( date -Iseconds)",
+    "importDB": "mongorestore --uri ${MONGO_DSN}"
   },
   "author": "",
   "license": "MIT",
