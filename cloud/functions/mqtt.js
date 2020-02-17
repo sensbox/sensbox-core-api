@@ -97,7 +97,7 @@ const handlePayload = async (request) => {
   const device = await findDeviceByUUID(agent.uuid);
   // If device is not connected return inmediatly
   if (!device.get('connected')) {
-    throw new Parse.Error(500, 'Device is not connected. Please connect with the server first.');
+    throw new Parse.Error(500, 'Device is not connected. Please connect to server first.');
   }
 
   device.set('lastReportAt', new Date());

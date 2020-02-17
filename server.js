@@ -87,4 +87,6 @@ const httpServer = http.createServer(app);
 
 // eslint-disable-next-line no-console
 httpServer.listen(port, () => console.log(`Server running on ${serverURL}`));
-ParseServer.createLiveQueryServer(httpServer, {});
+ParseServer.createLiveQueryServer(httpServer, {
+  redisURL: redisDSN,
+});
