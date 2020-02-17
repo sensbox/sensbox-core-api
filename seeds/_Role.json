@@ -1,0 +1,2 @@
+{"_id":"GoV2VSARmX","name":"ROLE_USER","_wperm":["*"],"_rperm":["*"],"_acl":{"*":{"w":true,"r":true}},"_created_at":{"$date":{"$numberLong":"1568220597284"}},"_updated_at":{"$date":{"$numberLong":"1569858289892"}}}
+{"_id":"n8b842cPS6","name":"ROLE_SUPER_ADMIN","_wperm":["*"],"_rperm":["*"],"_acl":{"*":{"w":true,"r":true}},"_created_at":{"$date":{"$numberLong":"1569257862586"}},"_updated_at":{"$date":{"$numberLong":"1569853639564"}}}
