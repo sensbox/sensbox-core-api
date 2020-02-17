@@ -10,7 +10,7 @@
     "inspect": "node --inspect .",
     "start": "node .",
     "eslint": "eslint --debug --ext .js cloud",
-    "seed" : "for filename in ./seeds/*; do mongoimport --uri ${MONGO_DSN} --file $filename;  done",
+    "seed" : "for filename in ./seeds/*; do mongoimport --mode=upsert --uri ${MONGO_DSN} --file $filename;  done",
     "exportCollection": "TODO: //command to export a collection to a file in the seeds path",
     "exportDB": "mongodump --uri ${MONGO_DSN} -o './backups/'$( date -Iseconds)",
     "importDB": "mongorestore --uri ${MONGO_DSN}"
