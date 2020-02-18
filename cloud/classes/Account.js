@@ -16,7 +16,7 @@ class Account extends Base {
         const lastName = account.get('lastName');
         const email = account.get('email');
         const password = account.get('password');
-        const isBanned = !!account.get('active');
+        const isBanned = !account.get('active');
         const username = `${firstName.toLowerCase()}.${lastName.toLowerCase()}`;
         const user = new Parse.User();
         user.setUsername(username);
