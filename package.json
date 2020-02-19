@@ -11,7 +11,7 @@
     "start": "node .",
     "eslint": "eslint --debug --ext .js cloud",
     "seed" : "for filename in ./seeds/*; do mongoimport --mode=upsert --uri ${MONGO_DSN} --file $filename;  done",
-    "exportCollection": "TODO: //command to export a collection to a file in the seeds path",
+    "exportCollection": "dump() { mongoexport --uri ${MONGO_DSN} --collection $1 -o \"./seeds/$1.json\"  ; }; dump",
     "exportDB": "mongodump --uri ${MONGO_DSN} -o './backups/'$( date -Iseconds)",
     "importDB": "mongorestore --uri ${MONGO_DSN}"
   },
