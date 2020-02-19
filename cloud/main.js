@@ -1,4 +1,5 @@
 const { Parse } = global;
+const { loadTriggers, registerClasses } = require('./utils/core');
 const Influx = require('influx');
 
 // eslint-disable-next-line object-curly-newline
@@ -21,32 +22,10 @@ Parse.Cloud.beforeLogin(async (request) => {
   }
 });
 
-// Before Save Triggers
-Parse.Cloud.beforeSave('Device', Device.beforeSave);
-Parse.Cloud.beforeSave('Organization', Organization.beforeSave);
-Parse.Cloud.beforeSave('Zone', Zone.beforeSave);
-Parse.Cloud.beforeSave('Sensor', Sensor.beforeSave);
-Parse.Cloud.beforeSave('Account', Account.beforeSave);
-Parse.Cloud.beforeSave('Dashboard', Dashboard.beforeSave);
+registerClasses(Dashboard, Device, Organization, Zone, Account, Sensor);
 
-// After Save Triggers
-Parse.Cloud.afterSave('Account', Account.afterSave);
-Parse.Cloud.afterSave('Device', Device.afterSave);
-
-// Before Delete Triggers
-Parse.Cloud.beforeDelete('Account', Account.beforeDelete);
-Parse.Cloud.beforeDelete('Organization', Organization.beforeDelete);
-
-// After Delete Triggers
-Parse.Cloud.afterDelete('Account', Account.afterDelete);
-Parse.Cloud.afterDelete('Organization', Organization.afterDelete);
-
-// Before Find Triggers
-// Parse.Cloud.beforeFind('Organization', Organization.beforeFind);
-
-// After Find Triggers
-Parse.Cloud.afterFind('Account', Account.afterFind);
-Parse.Cloud.afterFind('Device', Device.afterFind);
+// Load triggers for each registered class
+loadTriggers();
 
 // Common Cloud Functions
 Parse.Cloud.define('ping', Common.ping);
