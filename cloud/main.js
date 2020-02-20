@@ -1,6 +1,7 @@
 const { Parse } = global;
-const { loadTriggers, registerClasses } = require('./utils/core');
+const { AppCache } = require('parse-server/lib/cache'); // this refrenese only in cloud cloud
 const Influx = require('influx');
+const { loadTriggers, registerClasses } = require('./utils/core');
 
 // eslint-disable-next-line object-curly-newline
 const { Dashboard, Device, Organization, Zone, Account, Sensor } = require('./classes');
@@ -14,6 +15,9 @@ const InfluxDB = new Influx.InfluxDB(influxDSN);
 Parse.Integrations = {
   InfluxDB,
 };
+
+const app = AppCache.get(process.env.APP_ID);
+Parse.dbAdapter = app.databaseController.adapter;
 
 Parse.Cloud.beforeLogin(async (request) => {
   const { object: user } = request;
@@ -31,6 +35,7 @@ loadTriggers();
 Parse.Cloud.define('ping', Common.ping);
 Parse.Cloud.define('findUsersByText', Common.findUsersByText);
 Parse.Cloud.define('requestObjectPermissions', Common.requestObjectPermissions);
+Parse.Cloud.define('requestDeviceKey', Common.requestDeviceKey);
 
 // Sensors Cloud Functions
 Parse.Cloud.define('findSensorsByDevices', SensorFn.findSensorsByDevices);

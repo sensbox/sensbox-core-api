@@ -1,4 +1,5 @@
 const { Parse } = global;
+const passwordCrypto = require('parse-server/lib/password');
 
 /* eslint-disable no-underscore-dangle */
 const flatAccount = (account) => {
@@ -94,8 +95,35 @@ const requestObjectPermissions = async (request) => {
   return { permissions };
 };
 
+const requestDeviceKey = async (request) => {
+  const { user, params } = request;
+  const { uuid, password } = params;
+  if (!user) throw new Parse.Error(Parse.Error.INVALID_SESSION_TOKEN, 'User not authorized.');
+
+  const userCollection = Parse.dbAdapter.database.collection('_User');
+  const currentUser = await userCollection.findOne({
+    _id: user.id,
+  });
+  const passwordsMatch = await passwordCrypto.compare(password, currentUser._hashed_password);
+  if (!passwordsMatch) throw new Parse.Error(403, 'Forbidden');
+  const query = new Parse.Query('Device');
+  query.equalTo('uuid', uuid);
+  const device = await query.first({ useMasterKey: true });
+  let key = null;
+  if (device) {
+    const deviceACL = device.getACL();
+    const isPublic = deviceACL.getPublicReadAccess();
+    if (isPublic || deviceACL.getReadAccess(user._getId())) {
+      key = device.get('key');
+    }
+  }
+  if (!key) throw new Parse.Error(404, 'Device Not Found');
+  return { key };
+};
+
 module.exports = {
   ping,
   findUsersByText,
   requestObjectPermissions,
+  requestDeviceKey,
 };
