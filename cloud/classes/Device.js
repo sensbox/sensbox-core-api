@@ -50,11 +50,10 @@ class Device extends Base {
         objects.map(async (device) => {
           const query = new Parse.Query('Sensor');
           query.equalTo('device', device);
-          return query.find({ useMasterKey: true }).then((sensors) =>
-            device.set(
-              'sensors',
-              sensors.map((s) => s.toJSON()),
-            ),
+          const sensors = await query.find({ useMasterKey: true });
+          return device.set(
+            'sensors',
+            sensors.map((s) => s.toJSON()),
           );
         }),
       );

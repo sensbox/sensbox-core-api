@@ -75,13 +75,11 @@ class Account extends Base {
     const promises = objects.map(async (account) => {
       const query = new Parse.Query(Parse.User);
       // eslint-disable-next-line no-underscore-dangle
-      return query.get(account.get('user')._getId(), { useMasterKey: true }).then((user) => {
-        account.set('username', user.getUsername());
-        account.set('email', user.getEmail());
-        return account;
-      });
+      const user = await query.get(account.get('user')._getId(), { useMasterKey: true });
+      account.set('username', user.getUsername());
+      account.set('email', user.getEmail());
+      return account;
     });
-
     const response = await Promise.all(promises);
     return response;
   }

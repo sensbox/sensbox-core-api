@@ -102,7 +102,6 @@ const fetchSeries = async (request) => {
       aggregation,
     };
     return fetch({ ...request, params });
-    // results.push({ serie: serie.sensor, data: generateRandomData() });
   });
 
   const results = await Promise.all(promises);
