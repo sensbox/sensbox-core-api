@@ -16,9 +16,6 @@ Parse.Integrations = {
   InfluxDB,
 };
 
-const app = AppCache.get(process.env.APP_ID);
-Parse.dbAdapter = app.databaseController.adapter;
-
 Parse.Cloud.beforeLogin(async (request) => {
   const { object: user } = request;
   if (user.get('isBanned')) {
