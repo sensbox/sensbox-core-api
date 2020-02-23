@@ -102,7 +102,6 @@ const requestDeviceKey = async (request) => {
   if (!user) throw new Parse.Error(Parse.Error.INVALID_SESSION_TOKEN, 'User not authorized.');
   const database = getDatabaseInstance();
   const userCollection = database.collection('_User');
-  // const userCollection = Parse.dbAdapter.database.collection('_User');
   const currentUser = await userCollection.findOne({
     _id: user.id,
   });
