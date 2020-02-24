@@ -110,10 +110,12 @@ const requestDeviceKey = async (request) => {
   query.equalTo('uuid', uuid);
   const device = await query.first({ useMasterKey: true });
   let key = null;
+  
   if (device) {
     const deviceACL = device.getACL();
-    const isPublic = deviceACL.getPublicReadAccess();
-    if (isPublic || deviceACL.getReadAccess(user._getId())) {
+    const isPublic = deviceACL && deviceACL.getPublicReadAccess();
+    const userHasAccess = deviceACL && deviceACL.getReadAccess(user._getId());
+    if (isPublic || userHasAccess) {
       key = device.get('key');
     }
   }
