@@ -1,5 +1,6 @@
 const { Parse } = global;
 const passwordCrypto = require('parse-server/lib/password');
+const { getDatabaseInstance } = require('../utils/core');
 
 /* eslint-disable no-underscore-dangle */
 const flatAccount = (account) => {
@@ -99,8 +100,8 @@ const requestDeviceKey = async (request) => {
   const { user, params } = request;
   const { uuid, password } = params;
   if (!user) throw new Parse.Error(Parse.Error.INVALID_SESSION_TOKEN, 'User not authorized.');
-
-  const userCollection = Parse.dbAdapter.database.collection('_User');
+  const database = getDatabaseInstance();
+  const userCollection = database.collection('_User');
   const currentUser = await userCollection.findOne({
     _id: user.id,
   });

@@ -1,4 +1,6 @@
 const { Parse } = global;
+const Config = require('parse-server/lib/Config');
+
 const classes = [];
 
 function registerClasses(...args) {
@@ -17,7 +19,13 @@ function loadTriggers() {
   });
 }
 
+function getDatabaseInstance() {
+  const { database } = Config.get(Parse.applicationId).database.adapter;
+  return database;
+}
+
 module.exports = {
   registerClasses,
   loadTriggers,
+  getDatabaseInstance,
 };
