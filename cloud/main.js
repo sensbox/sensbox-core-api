@@ -1,5 +1,4 @@
 const { Parse } = global;
-const { AppCache } = require('parse-server/lib/cache'); // this refrenese only in cloud cloud
 const Influx = require('influx');
 const { loadTriggers, registerClasses } = require('./utils/core');
 
