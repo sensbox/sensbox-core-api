@@ -6,6 +6,7 @@
   "scripts": {
     "pretest": "node ./__tests__/setup/testServer.js",
     "test": "jest --runInBand",
+    "circleci-local": "circleci local execute",
     "dev": "nodemon -L . -i '**/logs/**' -i '**/__tests__/**' -i jest.**",
     "debug": "nodemon --inspect=0.0.0.0 -L . -i '**/logs/**' -i '**/__tests__/**' -i jest.**",
     "inspect": "node --inspect .",
