@@ -24,8 +24,23 @@ function getDatabaseInstance() {
   return database;
 }
 
+/**
+ * Decorator function to apply to all functions that needs to check for user authentication
+ * @param {*} callback
+ */
+function secure(callback) {
+  return (request) => {
+    const { master: isMaster, user } = request;
+    if (!isMaster) {
+      if (!user) throw new Parse.Error(403, '{"error":"unauthorized"}');
+    }
+    return callback.call(this, request);
+  };
+}
+
 module.exports = {
   registerClasses,
   loadTriggers,
   getDatabaseInstance,
+  secure,
 };

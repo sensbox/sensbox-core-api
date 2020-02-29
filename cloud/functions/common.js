@@ -24,6 +24,8 @@ const ping = () => ({
 const findUsersByText = async (request) => {
   const { user, params } = request;
   const { text } = params;
+
+  if (!user) throw new Parse.Error(403, 'User needs to be authenticated');
   // Query for username or email in _User Class
   const usernameQuery = new Parse.Query('_User');
   usernameQuery.matches('username', new RegExp(`${text}`, 'i'));
@@ -111,7 +113,7 @@ const requestDeviceKey = async (request) => {
   query.equalTo('uuid', uuid);
   const device = await query.first({ useMasterKey: true });
   let key = null;
-  
+
   if (device) {
     const deviceACL = device.getACL();
     const isPublic = deviceACL && deviceACL.getPublicReadAccess();
@@ -126,6 +128,7 @@ const requestDeviceKey = async (request) => {
 
 module.exports = {
   ping,
+  flatAccount,
   findUsersByText,
   requestObjectPermissions,
   requestDeviceKey,

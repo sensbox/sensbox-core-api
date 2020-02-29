@@ -24,7 +24,11 @@ class Account extends Base {
         user.setEmail(email);
         user.set('isBanned', isBanned);
         await user.save(null, { useMasterKey: true });
-        account.set('user', user.toPointer());
+        account.set('user', user);
+        const acl = account.getACL();
+        acl.setWriteAccess(user, true);
+        acl.setReadAccess(user, true);
+        account.setACL(acl);
       } else {
         const user = account.get('user');
         const newPassword = account.get('password');
@@ -73,11 +77,22 @@ class Account extends Base {
   static async afterFind(request) {
     const { objects } = request;
     const promises = objects.map(async (account) => {
-      const query = new Parse.Query(Parse.User);
-      // eslint-disable-next-line no-underscore-dangle
-      const user = await query.get(account.get('user')._getId(), { useMasterKey: true });
-      account.set('username', user.getUsername());
-      account.set('email', user.getEmail());
+      const linkedUser = account.get('user');
+      if (linkedUser) {
+        try {
+          const query = new Parse.Query(Parse.User);
+
+          // eslint-disable-next-line no-underscore-dangle
+          const user = await query.get(account.get('user')._getId(), { useMasterKey: true });
+          if (user) {
+            account.set('username', user.getUsername());
+            account.set('email', user.getEmail());
+          }
+        } catch (error) {
+          account.set('username', 'User not found');
+          account.set('email', 'User email not found');
+        }
+      }
       return account;
     });
     const response = await Promise.all(promises);
