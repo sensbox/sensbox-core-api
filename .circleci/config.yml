@@ -1,0 +1,39 @@
+version: 2
+jobs:
+  build:
+    working_directory: ~/sensbox-core-api
+    docker:
+      - image: santiagosemhan/sensbox-core-api-test-environment:0.0.3
+        environment:
+          PARSE_SERVER_LOGS_FOLDER: null
+          MONGO_DSN: 'mongodb://localhost:27017/sensbox'
+    steps:
+      - checkout
+      # - restore_cache:
+      #     key: app-cache-{{ checksum "package.json" }}
+      - run:
+          name: Install Dependencies
+          command: npm ci
+      # - save_cache:
+      #     key: app-cache-{{ checksum "package.json" }}
+      #     paths:
+      #       - ~/.cache/npm
+      - run:
+          name: Run Dev Server
+          command: npm run pretest
+          background: true
+      - run:
+          name: Updating Parse Schema into MongoDB Server
+          command: npm run seed
+      - run:
+          name: Waits for dev Server start
+          shell: /bin/sh
+          command: |
+            wget --retry-connrefused --waitretry=1 --read-timeout=20 --timeout=15 -t 10 http://localhost:4444/parse
+            :
+      - run:
+          name: Run Test suite
+          command: npm run test
+      # - run:
+      #     name: Run Tests
+      #     command: npm test

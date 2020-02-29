@@ -14,6 +14,9 @@ COPY package.json package.json
 ENV NPM_CONFIG_LOGLEVEL warn
 RUN npm install
 
+# Copy Jest Config
+COPY jest.config.js jest.config.js
+
 # Bundle APP files
 COPY server.js server.js
 COPY cloud ./cloud

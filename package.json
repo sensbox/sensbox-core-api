@@ -4,13 +4,15 @@
   "description": "",
   "main": "server.js",
   "scripts": {
-    "test": "echo \"Error: no test specified\" && exit 1",
-    "dev": "nodemon -L . --ignore './logs/*'",
-    "debug": "nodemon --inspect=0.0.0.0 -L . --ignore './logs/*'",
+    "pretest": "node ./__tests__/setup/testServer.js",
+    "test": "jest --runInBand",
+    "circleci-local": "circleci local execute",
+    "dev": "nodemon -L . -i '**/logs/**' -i '**/__tests__/**' -i jest.**",
+    "debug": "nodemon --inspect=0.0.0.0 -L . -i '**/logs/**' -i '**/__tests__/**' -i jest.**",
     "inspect": "node --inspect .",
     "start": "node .",
     "eslint": "eslint --debug --ext .js cloud",
-    "seed" : "for filename in ./seeds/*; do mongoimport --mode=upsert --uri ${MONGO_DSN} --file $filename;  done",
+    "seed": "for filename in ./seeds/*; do mongoimport --mode=upsert --uri ${MONGO_DSN} --file $filename;  done",
     "exportCollection": "dump() { mongoexport --uri ${MONGO_DSN} --collection $1 -o \"./seeds/$1.json\"  ; }; dump",
     "exportDB": "mongodump --uri ${MONGO_DSN} -o './backups/'$( date -Iseconds)",
     "importDB": "mongorestore --uri ${MONGO_DSN}"
@@ -31,6 +33,8 @@
     "eslint": "^6.1.0",
     "eslint-config-airbnb-base": "^14.0.0",
     "eslint-plugin-import": "^2.18.2",
-    "nodemon": "^1.19.1"
+    "jest": "^25.1.0",
+    "nodemon": "^1.19.1",
+    "parse": "^2.11.0"
   }
 }
