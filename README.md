@@ -4,7 +4,8 @@
 
 The core api services are a set of microservices that provide all the backend / core functionalities of the sensbox suite; Along with the dashboard allow to manage all the information, metrics from devices, events, alerts, user's customized dashboards, etc.
 
-Feel free to contribute with us :)
+Feel free to contribute with us :) 
+
 
 The following is a list of the related microservices that compose the suite: 
 
