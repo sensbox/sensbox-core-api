@@ -1,6 +1,7 @@
 # sensbox-core-api
-
+[![CircleCI](https://circleci.com/gh/santiagosemhan/sensbox-core-api/tree/master.svg?style=shield&circle-token=4fe25b155b65399c220bb1b5e1fc6b4af38f25cc)](https://circleci.com/gh/santiagosemhan/sensbox-core-api/tree/master)
 ## Core API Services
+
 
 The core api services are a set of microservices that provide all the backend / core functionalities of the sensbox suite; Along with the dashboard allow to manage all the information, metrics from devices, events, alerts, user's customized dashboards, etc.
 
