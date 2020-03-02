@@ -1,8 +1,7 @@
 *
-!__tests__
-!jest.config.js
 !cloud/*
 !seeds/*
 !package.json
 !server.js
 !utils.js
+!config.js
