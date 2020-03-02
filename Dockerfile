@@ -17,6 +17,7 @@ RUN npm install
 
 # Bundle APP files
 COPY server.js server.js
+COPY config.js config.js
 COPY cloud ./cloud
 COPY seeds ./seeds
 
