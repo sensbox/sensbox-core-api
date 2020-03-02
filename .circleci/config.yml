@@ -1,30 +1,41 @@
 version: 2
-jobs:
-  build:
-    working_directory: ~/sensbox-core-api
+executors:
+  docker-publisher:
+    environment:
+      # IMAGE_NAME: jonathancardoso/building-on-ci
     docker:
       - image: santiagosemhan/sensbox-core-api-test-environment:0.0.3
         environment:
           PARSE_SERVER_LOGS_FOLDER: null
           MONGO_DSN: 'mongodb://localhost:27017/sensbox'
+jobs:
+  checkout:
+    working_directory: ~/sensbox-core-api
+    executor: docker-publisher
     steps:
       - checkout
-      # - restore_cache:
-      #     key: app-cache-{{ checksum "package.json" }}
+  installing_dependencies:
+    executor: docker-publisher
+    steps:
+      - restore_cache:
+          key: app-cache-{{ checksum "package.json" }}
       - run:
           name: Install Dependencies
           command: npm ci
-      # - save_cache:
-      #     key: app-cache-{{ checksum "package.json" }}
-      #     paths:
-      #       - ~/.cache/npm
+      - save_cache:
+          key: app-cache-{{ checksum "package.json" }}
+          paths:
+            - ~/.cache/npm
+  test:
+    executor: docker-publisher
+    steps:
+      - run:
+          name: Updating Parse Schema into MongoDB Server
+          command: npm run seed
       - run:
           name: Run Dev Server
           command: npm run pretest
           background: true
-      - run:
-          name: Updating Parse Schema into MongoDB Server
-          command: npm run seed
       - run:
           name: Waits for dev Server start
           shell: /bin/sh
@@ -37,3 +48,14 @@ jobs:
       # - run:
       #     name: Run Tests
       #     command: npm test
+workflows:
+  version: 2
+  build-test-and-deploy:
+    jobs:
+      - checkout
+      - installing_dependencies:
+          requires:
+            - checkout
+      - test:
+          requires:
+            - installing_dependencies
