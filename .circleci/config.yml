@@ -53,8 +53,8 @@ jobs:
           command: |
             docker build -t $IMAGE_NAME:latest .
       - run:
-        name: Archive Docker image
-        command: docker save -o image.tar $IMAGE_NAME
+          name: Archive Docker image
+          command: docker save -o image.tar $IMAGE_NAME
       - persist_to_workspace:
           root: .
           paths:
@@ -84,6 +84,12 @@ workflows:
       - build:
           requires:
             - test
+          filters:
+            branches:
+              only: master
+      - publish-latest:
+          requires:
+            - build
           filters:
             branches:
               only: master
