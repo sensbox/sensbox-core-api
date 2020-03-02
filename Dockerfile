@@ -23,5 +23,5 @@ COPY cloud ./cloud
 COPY seeds ./seeds
 
 # Expose the listening port of your app
-EXPOSE ${PORT}
+EXPOSE 4040
 CMD ["sh", "-c", "npm run ${NPM_RUN_SCRIPT}"]
