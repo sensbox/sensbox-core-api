@@ -1,5 +1,4 @@
 const { Parse } = global;
-const { getUserRoles } = require('../utils');
 
 class Base extends Parse.Object {
   static async beforeSave(request) {
@@ -19,12 +18,12 @@ class Base extends Parse.Object {
       acl.setRoleWriteAccess('ROLE_SUPER_ADMIN', true);
       acl.setRoleReadAccess('ROLE_SUPER_ADMIN', true);
       if (!master) {
-        const roles = await getUserRoles(user);
-        const userIsSuperAdmin = roles.map((r) => r.get('name')).includes('ROLE_SUPER_ADMIN');
-        if (!userIsSuperAdmin) {
-          acl.setWriteAccess(user, true);
-          acl.setReadAccess(user, true);
-        }
+        //   const roles = await getUserRoles(user);
+        //   const userIsSuperAdmin = roles.map((r) => r.get('name')).includes('ROLE_SUPER_ADMIN');
+        //   if (!userIsSuperAdmin) {
+        acl.setWriteAccess(user, true);
+        acl.setReadAccess(user, true);
+        // }
       }
       request.object.setACL(acl);
     } else if (user) request.object.set('updatedBy', user);
