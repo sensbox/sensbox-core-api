@@ -1,5 +1,8 @@
+jest.mock('../cloud/utils/core');
+
 const { Parse, testUser } = global;
 const utils = require('./utils');
+const { getDatabaseInstance } = require('../cloud/utils/core');
 const { Common } = require('../cloud/functions');
 
 describe('Common Cloud Functions', () => {
@@ -83,5 +86,88 @@ describe('Common Cloud Functions', () => {
     } catch (error) {
       expect(error.message).toMatch('User needs to be authenticated');
     }
+  });
+
+  describe('Test RequestDeviceKey function', () => {
+    beforeEach(() => {
+      // eslint-disable-next-line no-underscore-dangle
+      getDatabaseInstance.mockReturnValue(global.__TEST_ENVIRONMENT__.database);
+    });
+
+    test('RequestDeviceKey without user should throw an execptiom', async () => {
+      try {
+        const params = {};
+        await Common.requestDeviceKey({ params });
+      } catch (error) {
+        expect(error.message).toMatch('User not authorized.');
+      }
+    });
+
+    test('RequestDeviceKey with bad password should throw an execption', async () => {
+      try {
+        const params = {
+          password: 'badPasword',
+        };
+        await Common.requestDeviceKey({ user: testUser, params });
+      } catch (error) {
+        expect(error.message).toMatch('Forbidden');
+      }
+    });
+
+    test('RequestDeviceKey should return the device key to a device created from owner', async () => {
+      const device = new Parse.Object('Device');
+      device.set('uuid', '12345');
+
+      try {
+        await device.save(null, { sessionToken: testUser.getSessionToken() });
+
+        const params = {
+          uuid: '12345',
+          password: 'securePass',
+        };
+        const result = await Common.requestDeviceKey({ user: testUser, params });
+        expect(result).toHaveProperty('key');
+        expect(result.key).not.toBeUndefined();
+        expect(result.key).not.toBeNull();
+      } finally {
+        await device.destroy({ useMasterKey: true });
+      }
+    });
+
+    test('RequestDeviceKey should return device not found exepction', async () => {
+      const device = new Parse.Object('Device');
+      device.set('uuid', '12345');
+      try {
+        await device.save(null, { sessionToken: testUser.getSessionToken() });
+        const params = {
+          uuid: 'badUuid',
+          password: 'securePass',
+        };
+        await Common.requestDeviceKey({ user: testUser, params });
+      } catch (error) {
+        expect(error.message).toMatch('Device Not Found');
+      } finally {
+        await device.destroy({ useMasterKey: true });
+      }
+    });
+
+    test('RequestDeviceKey should return device not found exepction for not owner user', async () => {
+      const { account: fakeAccount } = await utils.createTestAccount(Parse);
+      const device = new Parse.Object('Device');
+      device.set('uuid', '12345');
+      device.set('createdBy', fakeAccount.get('user'));
+      try {
+        await device.save(null, { useMasterKey: true });
+        const params = {
+          uuid: '12345',
+          password: 'securePass',
+        };
+        await Common.requestDeviceKey({ user: testUser, params });
+      } catch (error) {
+        expect(error.message).toMatch('Device Not Found');
+      } finally {
+        await device.destroy({ useMasterKey: true });
+      }
+    });
   });
 });

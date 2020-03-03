@@ -8,12 +8,12 @@ describe('Sensors Cloud Functions', () => {
     device.set('uuid', 'test');
     const Sensor = Parse.Object.extend('Sensor');
     const sensor1 = new Sensor();
-    const sensor2 = new Sensor();
-    const sensor3 = new Sensor();
     sensor1.set('device', device);
     sensor1.set('name', 'sensor1');
+    const sensor2 = new Sensor();
     sensor2.set('device', device);
     sensor2.set('name', 'sensor2');
+    const sensor3 = new Sensor();
     sensor3.set('device', device);
     sensor3.set('name', 'sensor3');
 
@@ -34,7 +34,7 @@ describe('Sensors Cloud Functions', () => {
         params,
       });
       expect(results).toHaveLength(3);
-      expect(results.map((s) => s.objectId)).toEqual(arrSensors.map((s) => s._getId()));
+      expect(results.map((s) => s.objectId)).toStrictEqual(arrSensors.map((s) => s._getId()));
     } finally {
       await Promise.all([
         device.destroy({ sessionToken: testUser.getSessionToken() }),
