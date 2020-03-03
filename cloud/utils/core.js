@@ -20,7 +20,8 @@ function loadTriggers() {
 }
 
 function getDatabaseInstance() {
-  const { database } = Config.get(Parse.applicationId).database.adapter;
+  const config = Config.get(Parse.applicationId);
+  const { database } = config.database.adapter;
   return database;
 }
 
