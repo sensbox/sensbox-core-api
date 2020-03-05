@@ -2,6 +2,7 @@
 !cloud/*
 !seeds/*
 !package.json
+!package-lock.json
 !server.js
 !utils.js
 !config.js
