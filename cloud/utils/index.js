@@ -1,5 +1,19 @@
 const { Parse } = global;
 
+/**
+ * Decorator function to apply to all functions that needs to check for user authentication
+ * @param {*} callback
+ */
+function secure(callback) {
+  return (request) => {
+    const { master: isMaster, user } = request;
+    if (!isMaster && !user) {
+      throw new Parse.Error(Parse.Error.INVALID_SESSION_TOKEN, 'User needs to be authenticated');
+    }
+    return callback.call(this, request);
+  };
+}
+
 const clearSessionsFromUser = async (user) => {
   const query = new Parse.Query(Parse.Session);
   query.equalTo('user', user.toPointer());
@@ -50,4 +64,5 @@ module.exports = {
   getUserRoles,
   getArraysIntersection,
   nullParser,
+  secure,
 };
