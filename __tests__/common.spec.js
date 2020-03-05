@@ -3,9 +3,84 @@ jest.mock('../cloud/utils/core');
 const { Parse, testUser } = global;
 const utils = require('./utils');
 const { getDatabaseInstance } = require('../cloud/utils/core');
+const { secure } = require('../cloud/utils');
 const { Common } = require('../cloud/functions');
 
+beforeAll(() => {
+  // eslint-disable-next-line no-underscore-dangle
+  getDatabaseInstance.mockReturnValue(global.__TEST_ENVIRONMENT__.database);
+  Common.requestObjectPermissions = secure(Common.requestObjectPermissions);
+  Common.requestDeviceKey = secure(Common.requestDeviceKey);
+  Common.findUsersByText = secure(Common.findUsersByText);
+});
+
 describe('Common Cloud Functions', () => {
+  test('requestObjectPermissions should return an expection when no className or objectId are provided', async () => {
+    const EXCECPTION_MESSAGE = 'Invalid Parameters: className and objectId should be provided';
+    try {
+      await Common.requestObjectPermissions({ user: testUser, params: {} });
+    } catch (error) {
+      expect(error.message).toMatch(EXCECPTION_MESSAGE);
+    }
+    try {
+      await Common.requestObjectPermissions({ user: testUser, params: { className: 'Device' } });
+    } catch (error) {
+      expect(error.message).toMatch(EXCECPTION_MESSAGE);
+    }
+
+    try {
+      await Common.requestObjectPermissions({ user: testUser, params: { objectId: '123' } });
+    } catch (error) {
+      expect(error.message).toMatch(EXCECPTION_MESSAGE);
+    }
+  });
+
+  test('requestObjectPermissions should return an expection when className is invalid', async () => {
+    const className = 'invalidClassName';
+    try {
+      await Common.requestObjectPermissions({ user: testUser, params: { className, objectId: 1 } });
+    } catch (error) {
+      expect(error.message).toMatch(
+        `This user is not allowed to access non-existent class: ${className}`,
+      );
+    }
+  });
+
+  test('requestObjectPermissions should return an expection when objectId not found', async () => {
+    const className = 'Device';
+    const objectId = 'badObjectId';
+    try {
+      await Common.requestObjectPermissions({ user: testUser, params: { className, objectId } });
+    } catch (error) {
+      expect(error.message).toMatch('Object not found.');
+    }
+  });
+
+  test('requestObjectPermissions should return resurces permissions', async () => {
+    const device = new Parse.Object('Device');
+    device.set('uuid', '12345');
+    try {
+      await device.save(null, { sessionToken: testUser.getSessionToken() });
+      const { permissions } = await Common.requestObjectPermissions({
+        user: testUser,
+        params: { className: 'Device', objectId: device._getId() },
+      });
+      expect(permissions).toHaveProperty('public');
+      expect(permissions.public).toStrictEqual({ read: false, write: false });
+      expect(permissions).toHaveProperty('users');
+      permissions.users.map((user) => {
+        expect(user).toHaveProperty('userId');
+        expect(user).toHaveProperty('read');
+        expect(user).toHaveProperty('write');
+        expect(user).toHaveProperty('account');
+      });
+    } finally {
+      await device.destroy({ useMasterKey: true });
+    }
+  });
+
+  // test('requestObjectPermissions should not return permissions from forbidden resurces', async () => {});
+
   test('Flat account is doing right', async () => {
     const accountQuery = new Parse.Query('Account');
     accountQuery.equalTo('user', testUser);
@@ -89,17 +164,17 @@ describe('Common Cloud Functions', () => {
   });
 
   describe('Test RequestDeviceKey function', () => {
-    beforeEach(() => {
-      // eslint-disable-next-line no-underscore-dangle
-      getDatabaseInstance.mockReturnValue(global.__TEST_ENVIRONMENT__.database);
-    });
+    // beforeEach(() => {
+    //   // eslint-disable-next-line no-underscore-dangle
+    //   getDatabaseInstance.mockReturnValue(global.__TEST_ENVIRONMENT__.database);
+    // });
 
     test('RequestDeviceKey without user should throw an execptiom', async () => {
       try {
         const params = {};
         await Common.requestDeviceKey({ params });
       } catch (error) {
-        expect(error.message).toMatch('User not authorized.');
+        expect(error.message).toMatch('User needs to be authenticated');
       }
     });
 
