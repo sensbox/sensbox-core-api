@@ -24,8 +24,6 @@ const ping = () => ({
 const findUsersByText = async (request) => {
   const { user, params } = request;
   const { text } = params;
-
-  if (!user) throw new Parse.Error(403, 'User needs to be authenticated');
   // Query for username or email in _User Class
   const usernameQuery = new Parse.Query('_User');
   usernameQuery.matches('username', new RegExp(`${text}`, 'i'));
@@ -62,12 +60,14 @@ const findUsersByText = async (request) => {
 };
 
 const requestObjectPermissions = async (request) => {
-  const { className, objectId } = request.params;
+  const { user, master, params } = request;
+  const { className, objectId } = params;
   if (!(className && objectId)) {
     throw new Parse.Error(400, 'Invalid Parameters: className and objectId should be provided');
   }
   const objectQuery = new Parse.Query(className);
-  const object = await objectQuery.get(objectId, { useMasterKey: true });
+  const options = master ? { useMasterKey: true } : { sessionToken: user.getSessionToken() };
+  const object = await objectQuery.get(objectId, options);
   const ACL = object.getACL();
   const permissions = {
     public: {
@@ -101,7 +101,6 @@ const requestObjectPermissions = async (request) => {
 const requestDeviceKey = async (request) => {
   const { user, params } = request;
   const { uuid, password } = params;
-  if (!user) throw new Parse.Error(Parse.Error.INVALID_SESSION_TOKEN, 'User not authorized.');
   const database = getDatabaseInstance();
   const userCollection = database.collection('_User');
   const currentUser = await userCollection.findOne({
@@ -111,18 +110,19 @@ const requestDeviceKey = async (request) => {
   if (!passwordsMatch) throw new Parse.Error(403, 'Forbidden');
   const query = new Parse.Query('Device');
   query.equalTo('uuid', uuid);
-  const device = await query.first({ useMasterKey: true });
-  let key = null;
 
-  if (device) {
-    const deviceACL = device.getACL();
-    const isPublic = deviceACL && deviceACL.getPublicReadAccess();
-    const userHasAccess = deviceACL && deviceACL.getReadAccess(user._getId());
-    if (isPublic || userHasAccess) {
-      key = device.get('key');
-    }
+  // query needs to be done as root because key is protected as normal user
+  const options = { useMasterKey: true };
+  const device = await query.first(options);
+  let key = null;
+  if (!device) throw new Parse.Error(404, 'Device Not Found');
+  const deviceACL = device.getACL();
+  const isPublic = deviceACL && deviceACL.getPublicReadAccess();
+  const userHasAccess = deviceACL && deviceACL.getReadAccess(user._getId());
+  if (isPublic || userHasAccess) {
+    key = device.get('key');
+    if (!key) throw new Parse.Error(404, 'Device was found but key cannot be retrieved.');
   }
-  if (!key) throw new Parse.Error(404, 'Device Not Found');
   return { key };
 };
 

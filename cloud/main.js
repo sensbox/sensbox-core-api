@@ -1,6 +1,7 @@
 const { Parse } = global;
 const Influx = require('influx');
 const { loadTriggers, registerClasses } = require('./utils/core');
+const { secure } = require('./utils');
 
 // eslint-disable-next-line object-curly-newline
 const { Dashboard, Device, Organization, Zone, Account, Sensor } = require('./classes');
@@ -29,12 +30,12 @@ loadTriggers();
 
 // Common Cloud Functions
 Parse.Cloud.define('ping', Common.ping);
-Parse.Cloud.define('findUsersByText', Common.findUsersByText);
-Parse.Cloud.define('requestObjectPermissions', Common.requestObjectPermissions);
-Parse.Cloud.define('requestDeviceKey', Common.requestDeviceKey);
+Parse.Cloud.define('findUsersByText', secure(Common.findUsersByText));
+Parse.Cloud.define('requestObjectPermissions', secure(Common.requestObjectPermissions));
+Parse.Cloud.define('requestDeviceKey', secure(Common.requestDeviceKey));
 
 // Sensors Cloud Functions
-Parse.Cloud.define('findSensorsByDevices', SensorFn.findSensorsByDevices);
+Parse.Cloud.define('findSensorsByDevices', secure(SensorFn.findSensorsByDevices));
 
 // Influx Cloud Functions
 Parse.Cloud.define('metricsStoreFetch', InfluxFn.fetch);
