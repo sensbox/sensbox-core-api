@@ -1,5 +1,5 @@
 const { Parse, testUser } = global;
-const { Sensor: SensorCloudFunctions } = require('../cloud/functions');
+const { SensorController } = require('../cloud/controllers');
 
 describe('Sensors Cloud Functions', () => {
   test('findSensorsByDevices should return sensors without intersection', async () => {
@@ -27,14 +27,14 @@ describe('Sensors Cloud Functions', () => {
 
       const arrSensors = [sensor1, sensor2, sensor3];
       const params = {
-        devices: [{ objectId: device._getId() }],
+        devices: [{ objectId: device.id }],
       };
-      const { results } = await SensorCloudFunctions.findSensorsByDevices({
+      const { results } = await SensorController.findSensorsByDevices({
         user: testUser,
         params,
       });
       expect(results).toHaveLength(3);
-      expect(results.map((s) => s.objectId)).toStrictEqual(arrSensors.map((s) => s._getId()));
+      expect(results.map((s) => s.objectId)).toStrictEqual(arrSensors.map((s) => s.id));
     } finally {
       await Promise.all([
         device.destroy({ sessionToken: testUser.getSessionToken() }),
@@ -77,9 +77,9 @@ describe('Sensors Cloud Functions', () => {
       ]);
 
       const params = {
-        devices: [{ objectId: device._getId() }, { objectId: device2._getId() }],
+        devices: [{ objectId: device.id }, { objectId: device2.id }],
       };
-      const { results } = await SensorCloudFunctions.findSensorsByDevices({
+      const { results } = await SensorController.findSensorsByDevices({
         user: testUser,
         params,
       });

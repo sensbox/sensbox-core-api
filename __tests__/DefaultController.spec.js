@@ -1,35 +1,40 @@
 jest.mock('../cloud/utils/core');
-
 const { Parse, testUser } = global;
 const utils = require('./utils');
 const { getDatabaseInstance } = require('../cloud/utils/core');
 const { secure } = require('../cloud/utils');
-const { Common } = require('../cloud/functions');
+const { DefaultController } = require('../cloud/controllers');
 
 beforeAll(() => {
   // eslint-disable-next-line no-underscore-dangle
   getDatabaseInstance.mockReturnValue(global.__TEST_ENVIRONMENT__.database);
-  Common.requestObjectPermissions = secure(Common.requestObjectPermissions);
-  Common.requestDeviceKey = secure(Common.requestDeviceKey);
-  Common.findUsersByText = secure(Common.findUsersByText);
+  DefaultController.requestObjectPermissions = secure(DefaultController.requestObjectPermissions);
+  DefaultController.requestDeviceKey = secure(DefaultController.requestDeviceKey);
+  DefaultController.findUsersByText = secure(DefaultController.findUsersByText);
 });
 
 describe('Common Cloud Functions', () => {
   test('requestObjectPermissions should return an expection when no className or objectId are provided', async () => {
     const EXCECPTION_MESSAGE = 'Invalid Parameters: className and objectId should be provided';
     try {
-      await Common.requestObjectPermissions({ user: testUser, params: {} });
+      await DefaultController.requestObjectPermissions({ user: testUser, params: {} });
     } catch (error) {
       expect(error.message).toMatch(EXCECPTION_MESSAGE);
     }
     try {
-      await Common.requestObjectPermissions({ user: testUser, params: { className: 'Device' } });
+      await DefaultController.requestObjectPermissions({
+        user: testUser,
+        params: { className: 'Device' },
+      });
     } catch (error) {
       expect(error.message).toMatch(EXCECPTION_MESSAGE);
     }
 
     try {
-      await Common.requestObjectPermissions({ user: testUser, params: { objectId: '123' } });
+      await DefaultController.requestObjectPermissions({
+        user: testUser,
+        params: { objectId: '123' },
+      });
     } catch (error) {
       expect(error.message).toMatch(EXCECPTION_MESSAGE);
     }
@@ -38,7 +43,10 @@ describe('Common Cloud Functions', () => {
   test('requestObjectPermissions should return an expection when className is invalid', async () => {
     const className = 'invalidClassName';
     try {
-      await Common.requestObjectPermissions({ user: testUser, params: { className, objectId: 1 } });
+      await DefaultController.requestObjectPermissions({
+        user: testUser,
+        params: { className, objectId: 1 },
+      });
     } catch (error) {
       expect(error.message).toMatch(
         `This user is not allowed to access non-existent class: ${className}`,
@@ -50,7 +58,10 @@ describe('Common Cloud Functions', () => {
     const className = 'Device';
     const objectId = 'badObjectId';
     try {
-      await Common.requestObjectPermissions({ user: testUser, params: { className, objectId } });
+      await DefaultController.requestObjectPermissions({
+        user: testUser,
+        params: { className, objectId },
+      });
     } catch (error) {
       expect(error.message).toMatch('Object not found.');
     }
@@ -61,14 +72,14 @@ describe('Common Cloud Functions', () => {
     device.set('uuid', '12345');
     try {
       await device.save(null, { sessionToken: testUser.getSessionToken() });
-      const { permissions } = await Common.requestObjectPermissions({
+      const { permissions } = await DefaultController.requestObjectPermissions({
         user: testUser,
-        params: { className: 'Device', objectId: device._getId() },
+        params: { className: 'Device', objectId: device.id },
       });
       expect(permissions).toHaveProperty('public');
       expect(permissions.public).toStrictEqual({ read: false, write: false });
       expect(permissions).toHaveProperty('users');
-      permissions.users.map((user) => {
+      permissions.users.forEach((user) => {
         expect(user).toHaveProperty('userId');
         expect(user).toHaveProperty('read');
         expect(user).toHaveProperty('write');
@@ -79,13 +90,14 @@ describe('Common Cloud Functions', () => {
     }
   });
 
-  // test('requestObjectPermissions should not return permissions from forbidden resurces', async () => {});
+  // test('requestObjectPermissions should not return
+  // permissions from forbidden resurces', async () => {});
 
   test('Flat account is doing right', async () => {
     const accountQuery = new Parse.Query('Account');
     accountQuery.equalTo('user', testUser);
     const parseAccount = await accountQuery.first({ sessionToken: testUser.getSessionToken() });
-    const account = Common.flatAccount(parseAccount);
+    const account = DefaultController.flatAccount(parseAccount);
     expect(typeof account).toBe('object');
     expect(account).toHaveProperty('userId');
     expect(account).toHaveProperty('accountId');
@@ -98,8 +110,8 @@ describe('Common Cloud Functions', () => {
     const params = {
       text: 'jest',
     };
-    const results = await Common.findUsersByText({ params, user: testUser });
-    expect(results.map((a) => a.accountId)).not.toContain([testUser._getId()]);
+    const results = await DefaultController.findUsersByText({ params, user: testUser });
+    expect(results.map((a) => a.accountId)).not.toContain([testUser.id]);
   });
 
   test('Find users by text should only fetch users that matchs text', async () => {
@@ -120,12 +132,12 @@ describe('Common Cloud Functions', () => {
       fakeAccount2 = accounts[1].account;
       fakeAccount3 = accounts[2].account;
 
-      const results = await Common.findUsersByText({ params, user: testUser });
+      const results = await DefaultController.findUsersByText({ params, user: testUser });
       expect(results).toHaveLength(2);
       expect(results.map((a) => a.accountId)).toEqual(
-        expect.arrayContaining(accounts.slice(0, 2).map(({ account }) => account._getId())),
+        expect.arrayContaining(accounts.slice(0, 2).map(({ account }) => account.id)),
       );
-      expect(results.map((a) => a.accountId)).not.toContain(fakeAccount3._getId());
+      expect(results.map((a) => a.accountId)).not.toContain(fakeAccount3.id);
     } finally {
       if (fakeAccount1) fakeAccount1.destroy({ useMasterKey: true });
       if (fakeAccount2) fakeAccount2.destroy({ useMasterKey: true });
@@ -144,9 +156,9 @@ describe('Common Cloud Functions', () => {
       fakeAccount1 = accounts[0].account;
       fakeAccount1.set('firstName', 'fakeFirstName');
       await fakeAccount1.save(null, { useMasterKey: true });
-      const results = await Common.findUsersByText({ params, user: testUser });
+      const results = await DefaultController.findUsersByText({ params, user: testUser });
       expect(results).toHaveLength(1);
-      expect(results.map((a) => a.accountId)).toContain(fakeAccount1._getId());
+      expect(results.map((a) => a.accountId)).toContain(fakeAccount1.id);
     } finally {
       if (fakeAccount1) fakeAccount1.destroy({ useMasterKey: true });
     }
@@ -157,7 +169,7 @@ describe('Common Cloud Functions', () => {
       text: 'test',
     };
     try {
-      await Common.findUsersByText({ params, user: undefined });
+      await DefaultController.findUsersByText({ params, user: undefined });
     } catch (error) {
       expect(error.message).toMatch('User needs to be authenticated');
     }
@@ -172,7 +184,7 @@ describe('Common Cloud Functions', () => {
     test('RequestDeviceKey without user should throw an execptiom', async () => {
       try {
         const params = {};
-        await Common.requestDeviceKey({ params });
+        await DefaultController.requestDeviceKey({ params });
       } catch (error) {
         expect(error.message).toMatch('User needs to be authenticated');
       }
@@ -183,7 +195,7 @@ describe('Common Cloud Functions', () => {
         const params = {
           password: 'badPasword',
         };
-        await Common.requestDeviceKey({ user: testUser, params });
+        await DefaultController.requestDeviceKey({ user: testUser, params });
       } catch (error) {
         expect(error.message).toMatch('Forbidden');
       }
@@ -200,7 +212,7 @@ describe('Common Cloud Functions', () => {
           uuid: '12345',
           password: 'securePass',
         };
-        const result = await Common.requestDeviceKey({ user: testUser, params });
+        const result = await DefaultController.requestDeviceKey({ user: testUser, params });
         expect(result).toHaveProperty('key');
         expect(result.key).not.toBeUndefined();
         expect(result.key).not.toBeNull();
@@ -218,7 +230,7 @@ describe('Common Cloud Functions', () => {
           uuid: 'badUuid',
           password: 'securePass',
         };
-        await Common.requestDeviceKey({ user: testUser, params });
+        await DefaultController.requestDeviceKey({ user: testUser, params });
       } catch (error) {
         expect(error.message).toMatch('Device Not Found');
       } finally {
@@ -237,7 +249,7 @@ describe('Common Cloud Functions', () => {
           uuid: '12345',
           password: 'securePass',
         };
-        await Common.requestDeviceKey({ user: testUser, params });
+        await DefaultController.requestDeviceKey({ user: testUser, params });
       } catch (error) {
         expect(error.message).toMatch('Device Not Found');
       } finally {
