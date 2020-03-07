@@ -3,7 +3,7 @@ const { Parse, testUser } = global;
 const utils = require('./utils');
 const { getDatabaseInstance } = require('../cloud/utils/core');
 const { secure } = require('../cloud/utils');
-const { DefaultController } = require('../cloud/controllers');
+const DefaultController = require('../cloud/controllers/DefaultController');
 
 beforeAll(() => {
   // eslint-disable-next-line no-underscore-dangle
@@ -151,11 +151,8 @@ describe('Common Cloud Functions', () => {
     };
     let fakeAccount1 = null;
     try {
-      const accounts = await Promise.all([utils.createTestAccount(Parse)]);
-
-      fakeAccount1 = accounts[0].account;
-      fakeAccount1.set('firstName', 'fakeFirstName');
-      await fakeAccount1.save(null, { useMasterKey: true });
+      const { account } = await utils.createTestAccount(Parse, 'fakeFirstName');
+      fakeAccount1 = account;
       const results = await DefaultController.findUsersByText({ params, user: testUser });
       expect(results).toHaveLength(1);
       expect(results.map((a) => a.accountId)).toContain(fakeAccount1.id);
@@ -253,7 +250,10 @@ describe('Common Cloud Functions', () => {
       } catch (error) {
         expect(error.message).toMatch('Device Not Found');
       } finally {
-        await device.destroy({ useMasterKey: true });
+        await Promise.all([
+          device.destroy({ useMasterKey: true }),
+          fakeAccount.destroy({ useMasterKey: true }),
+        ]);
       }
     });
   });

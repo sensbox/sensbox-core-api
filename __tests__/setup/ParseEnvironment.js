@@ -4,7 +4,7 @@ const {
 } = require('parse-server/lib/Adapters/Storage/Mongo/MongoStorageAdapter');
 
 const Parse = require('parse/node');
-const { appId, masterKey, serverURL } = require('./testServerConfig');
+const { appId, masterKey, serverURL, databaseURI } = require('./testServerConfig');
 
 Parse.initialize(appId, null, masterKey);
 Parse.serverURL = serverURL;
@@ -13,7 +13,7 @@ const teardown = require('./teardown');
 
 const createTestConnection = async () => {
   const mongoStorageAdapter = new MongoStorageAdapter({
-    uri: 'mongodb://localhost:27017/sensbox',
+    uri: databaseURI,
   });
   await mongoStorageAdapter.connect();
   return mongoStorageAdapter;
@@ -21,7 +21,7 @@ const createTestConnection = async () => {
 
 class ParseEnvironment extends NodeEnvironment {
   constructor(config, context) {
-    console.log('environment');
+    // console.log('environment');
     super(config, context);
     this.mongoStorageAdapter = null;
   }

@@ -1,5 +1,5 @@
 const { Parse, testUser } = global;
-const { SensorController } = require('../cloud/controllers');
+const SensorController = require('../cloud/controllers/SensorController');
 
 describe('Sensors Cloud Functions', () => {
   test('findSensorsByDevices should return sensors without intersection', async () => {

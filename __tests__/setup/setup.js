@@ -1,6 +1,3 @@
-const {
-  MongoStorageAdapter,
-} = require('parse-server/lib/Adapters/Storage/Mongo/MongoStorageAdapter');
 const utils = require('../utils');
 
 module.exports = async (Parse) => {

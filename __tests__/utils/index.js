@@ -11,6 +11,7 @@ const createTestAccount = async (Parse, firstName = 'jest') => {
   account.set('email', `test_${time}@test.com`);
   account.set('password', 'securePass');
   await account.save(null, { useMasterKey: true });
+  // console.log(account);
   return {
     account,
   };
