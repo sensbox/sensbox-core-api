@@ -1,16 +1,38 @@
+/* eslint-disable class-methods-use-this */
 const { Parse } = global;
+const { flatDevice } = require('../utils');
 
 const DEVICE_MESSAGE_TOPIC = 'agent/message';
 const DEVICE_CONNECTED_TOPIC = 'agent/connected';
 const DEVICE_DISCONNECTED_TOPIC = 'agent/disconnected';
-// const ROLE_USER = 'ROLE_USER';
-// const ROLE_SUPER_ADMIN = 'ROLE_SUPER_ADMIN';
 
-const getFlatDevice = (device) => {
-  const flatDevice = device.toJSON();
-  delete flatDevice.key;
-  delete flatDevice.ACL;
-  return flatDevice;
+const createMqttMessage = (uuid, topic, payload) => {
+  const MqttMessage = Parse.Object.extend('DeviceMessage');
+  const mqttMessage = new MqttMessage();
+  mqttMessage.set('uuid', uuid);
+  mqttMessage.set('topic', topic);
+  mqttMessage.set('payload', payload);
+  mqttMessage.set('protocol', 'mqtt');
+  // var acl = new Parse.ACL();
+  // acl.setRoleReadAccess(ROLE_USER, true);
+  // acl.setRoleReadAccess(ROLE_SUPER_ADMIN, true);
+  // acl.setPublicReadAccess(false);
+  // mqttMessage.setACL(acl);
+  return mqttMessage.save(null, { useMasterKey: true });
+};
+
+const authorizeClient = async (request) => {
+  const { username, password } = request.params;
+  if (username === undefined || password === undefined) {
+    throw new Parse.Error(403, 'Username and Password have to be set.');
+  }
+  const Device = Parse.Object.extend('Device');
+  const query = new Parse.Query(Device);
+  query.equalTo('uuid', username);
+  query.equalTo('key', password);
+  const device = await query.first({ useMasterKey: true });
+  if (!device) throw new Parse.Error(403, 'Client unauthenticated. Bad Credentials');
+  return { authorized: true, device: flatDevice(device) };
 };
 
 const findDeviceByUUID = async (uuid) => {
@@ -39,37 +61,7 @@ const disconnectSensors = async (sensorsList, opts) => {
   return sensorsList;
 };
 
-const authorizeClient = async (request) => {
-  const { username, password } = request.params;
-  if (username === undefined || password === undefined) {
-    throw new Parse.Error(403, 'Username and Password have to be set.');
-  }
-  const Device = Parse.Object.extend('Device');
-  const query = new Parse.Query(Device);
-  query.equalTo('uuid', username);
-  query.equalTo('key', password);
-  const device = await query.first({ useMasterKey: true });
-  if (!device) throw new Parse.Error(403, 'Client unauthenticated. Bad Credentials');
-  return { authorized: true, device: getFlatDevice(device) };
-};
-
-const createMqttMessage = (uuid, topic, payload) => {
-  const MqttMessage = Parse.Object.extend('DeviceMessage');
-  const mqttMessage = new MqttMessage();
-  mqttMessage.set('uuid', uuid);
-  mqttMessage.set('topic', topic);
-  mqttMessage.set('payload', payload);
-  mqttMessage.set('protocol', 'mqtt');
-  // var acl = new Parse.ACL();
-  // acl.setRoleReadAccess(ROLE_USER, true);
-  // acl.setRoleReadAccess(ROLE_SUPER_ADMIN, true);
-  // acl.setPublicReadAccess(false);
-  // mqttMessage.setACL(acl);
-  return mqttMessage.save(null, { useMasterKey: true });
-};
-
-const setDeviceStatus = async (request, connected) => {
-  const { uuid } = request.params;
+const setDeviceStatus = async (uuid, connected) => {
   // console.log(request.master);
   const device = await findDeviceByUUID(uuid);
   device.set('connected', connected);
@@ -88,7 +80,17 @@ const setDeviceStatus = async (request, connected) => {
     await disconnectSensors(sensors);
   }
   await device.save(null, { useMasterKey: true });
-  return { connected, device: getFlatDevice(device) };
+  return { connected, device: flatDevice(device) };
+};
+
+const connectDevice = async (request) => {
+  const { uuid } = request.params;
+  return setDeviceStatus(uuid, true);
+};
+
+const disconnectDevice = async (request) => {
+  const { uuid } = request.params;
+  return setDeviceStatus(uuid, false);
 };
 
 const handlePayload = async (request) => {
@@ -140,12 +142,13 @@ const handlePayload = async (request) => {
 
   return {
     stored: true,
-    device: getFlatDevice(device),
+    device: flatDevice(device),
   };
 };
 
 module.exports = {
-  authorizeClient,
-  setDeviceStatus,
+  connectDevice,
+  disconnectDevice,
   handlePayload,
+  authorizeClient,
 };

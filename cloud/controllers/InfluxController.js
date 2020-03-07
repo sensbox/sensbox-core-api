@@ -1,19 +1,6 @@
 const { Parse } = global;
 const { Expression } = require('influx');
 
-// const generateRandomData = () => {
-//   const data = [];
-//   const today = new Date();
-//   for (let i = 0; i < 100; i += 1) {
-//     const y = Math.floor(Math.random() * (100 - 50 + 1) + 50);
-//     data.push({
-//       x: today.getTime() - i * 60000000,
-//       y,
-//     });
-//   }
-//   return data;
-// };
-
 const fetch = async (request) => {
   const e = new Expression();
   const { InfluxDB } = Parse.Integrations;

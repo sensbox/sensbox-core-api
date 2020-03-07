@@ -59,10 +59,45 @@ const nullParser = (opt) => {
   return opt;
 };
 
+const generateRandomData = () => {
+  const data = [];
+  const today = new Date();
+  for (let i = 0; i < 100; i += 1) {
+    const y = Math.floor(Math.random() * (100 - 50 + 1) + 50);
+    data.push({
+      x: today.getTime() - i * 60000000,
+      y,
+    });
+  }
+  return data;
+};
+
+const flatAccount = (account) => {
+  const profilePhoto = account.get('user').get('profilePhoto');
+  return {
+    userId: account.get('user').id,
+    accountId: account.id,
+    profilePhoto: profilePhoto || null,
+    username: account.get('username'),
+    firstName: account.get('firstName'),
+    lastName: account.get('lastName'),
+  };
+};
+
+const flatDevice = (device) => {
+  const flatted = device.toJSON();
+  delete flatted.key;
+  delete flatted.ACL;
+  return flatted;
+};
+
 module.exports = {
   clearSessionsFromUser,
   getUserRoles,
   getArraysIntersection,
   nullParser,
+  flatAccount,
+  flatDevice,
+  generateRandomData,
   secure,
 };

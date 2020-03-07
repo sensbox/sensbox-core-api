@@ -1,19 +1,7 @@
 const { Parse } = global;
 const passwordCrypto = require('parse-server/lib/password');
 const { getDatabaseInstance } = require('../utils/core');
-
-/* eslint-disable no-underscore-dangle */
-const flatAccount = (account) => {
-  const profilePhoto = account.get('user').get('profilePhoto');
-  return {
-    userId: account.get('user')._getId(),
-    accountId: account._getId(),
-    profilePhoto: profilePhoto || null,
-    username: account.get('username'),
-    firstName: account.get('firstName'),
-    lastName: account.get('lastName'),
-  };
-};
+const { flatAccount } = require('../utils');
 
 const ping = () => ({
   msg: 'pong',
@@ -32,7 +20,7 @@ const findUsersByText = async (request) => {
   const userQuery = Parse.Query.or(usernameQuery, emailQuery);
 
   // Prevent to fetch the user that request endpoint
-  userQuery.notEqualTo('objectId', user._getId());
+  userQuery.notEqualTo('objectId', user.id);
   let result = await userQuery.find({ useMasterKey: true });
   if (result.length > 0) {
     const promises = result.map((u) => {
@@ -106,6 +94,7 @@ const requestDeviceKey = async (request) => {
   const currentUser = await userCollection.findOne({
     _id: user.id,
   });
+  // eslint-disable-next-line no-underscore-dangle
   const passwordsMatch = await passwordCrypto.compare(password, currentUser._hashed_password);
   if (!passwordsMatch) throw new Parse.Error(403, 'Forbidden');
   const query = new Parse.Query('Device');
@@ -117,8 +106,8 @@ const requestDeviceKey = async (request) => {
   let key = null;
   if (!device) throw new Parse.Error(404, 'Device Not Found');
   const deviceACL = device.getACL();
-  const isPublic = deviceACL && deviceACL.getPublicReadAccess();
-  const userHasAccess = deviceACL && deviceACL.getReadAccess(user._getId());
+  const isPublic = (deviceACL && deviceACL.getPublicReadAccess()) || true;
+  const userHasAccess = deviceACL && deviceACL.getReadAccess(user.id);
   if (isPublic || userHasAccess) {
     key = device.get('key');
     if (!key) throw new Parse.Error(404, 'Device was found but key cannot be retrieved.');

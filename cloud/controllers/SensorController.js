@@ -1,3 +1,4 @@
+/* eslint-disable class-methods-use-this */
 const { Parse } = global;
 const { getArraysIntersection } = require('../utils');
 
