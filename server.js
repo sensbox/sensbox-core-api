@@ -4,7 +4,7 @@ const { ParseServer } = require('parse-server');
 const ParseDashboard = require('parse-dashboard');
 const ParseServerOptions = require('./config');
 
-const { masterKey, appId, redisDSN, serverURL, port } = ParseServerOptions;
+const { masterKey, appId, liveQuery, serverURL, port } = ParseServerOptions;
 const defaultDashboardUser = process.env.PARSE_SERVER_DASHBOARD_USER;
 const defaultDashboardPass = process.env.PARSE_SERVER_DASHBOARD_PASS;
 
@@ -51,5 +51,6 @@ const httpServer = http.createServer(app);
 // eslint-disable-next-line no-console
 httpServer.listen(port, () => console.log(`Server running on ${serverURL}`));
 ParseServer.createLiveQueryServer(httpServer, {
-  redisURL: redisDSN,
+  redisURL: liveQuery.redisURL,
+  classNames: ['DeviceMessage', 'Sensor'],
 });
