@@ -4,7 +4,7 @@
   "description": "",
   "main": "server.js",
   "scripts": {
-    "pretest": "node ./__tests__/setup/testServer.js",
+    "test-server-start": "node ./__tests__/setup/testServer.js",
     "test": "jest --runInBand --collect-coverage",
     "ci-local": "circleci local execute --config \".circleci/config.local.yml\" -v \"$(pwd)/coverage:/tmp/coverage\"",
     "dev": "nodemon -L . -i '**/logs/**' -i '**/__tests__/**' -i jest.**",

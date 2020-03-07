@@ -32,7 +32,7 @@ jobs:
           command: npm run seed
       - run:
           name: Run Dev Server
-          command: npm run pretest
+          command: npm run test-server-start
           background: true
       - run:
           name: Waits for dev Server start
