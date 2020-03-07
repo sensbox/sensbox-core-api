@@ -82,8 +82,7 @@ class Account extends Base {
         try {
           const query = new Parse.Query(Parse.User);
 
-          // eslint-disable-next-line no-underscore-dangle
-          const user = await query.get(account.get('user')._getId(), { useMasterKey: true });
+          const user = await query.get(account.get('user').id, { useMasterKey: true });
           if (user) {
             account.set('username', user.getUsername());
             account.set('email', user.getEmail());
