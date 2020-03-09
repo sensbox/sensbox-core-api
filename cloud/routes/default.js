@@ -3,7 +3,7 @@ const { DefaultController } = require('../controllers');
 module.exports = {
   ping: {
     action: DefaultController.ping,
-    secure: true,
+    secure: false,
   },
   findUsersByText: {
     action: DefaultController.findUsersByText,
