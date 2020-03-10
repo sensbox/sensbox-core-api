@@ -1,6 +1,6 @@
 const { Parse } = global;
 const Influx = require('influx');
-const { loadClassHooks, loadCloudFunctions } = require('./utils/core');
+const { loadClassHooks, loadCloudFunctions } = require('./utils/loader');
 
 const influxDSN = process.env.INFLUX_DSN;
 const InfluxDB = new Influx.InfluxDB(influxDSN);
