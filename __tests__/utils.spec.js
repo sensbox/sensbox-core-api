@@ -1,4 +1,3 @@
-const { Parse, testUser } = global;
 const Utils = require('../cloud/utils');
 
 describe('Utils', () => {
@@ -38,19 +37,6 @@ describe('Utils', () => {
       expect(Utils.nullParser(input)).toEqual('text');
       input = true;
       expect(Utils.nullParser(input)).toEqual(true);
-    });
-
-    test('clear all active sessions for a given user', async () => {
-      const sessionToken = testUser.getSessionToken();
-      const { sessions } = await Utils.clearSessionsFromUser(testUser);
-
-      expect(sessions).not.toBeUndefined();
-      expect(sessions).toContain(sessionToken);
-
-      const sessionQuery = new Parse.Query(Parse.Session);
-      sessionQuery.equalTo('user', testUser);
-      const results = await sessionQuery.find({ useMasterKey: true });
-      expect(results).toEqual([]);
     });
   });
 

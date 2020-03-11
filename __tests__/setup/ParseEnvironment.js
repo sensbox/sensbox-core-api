@@ -8,6 +8,8 @@ const { appId, masterKey, serverURL, databaseURI } = require('./testServerConfig
 
 Parse.initialize(appId, null, masterKey);
 Parse.serverURL = serverURL;
+console.log(`Trying to connect to ${serverURL}`);
+
 const setup = require('./setup');
 const teardown = require('./teardown');
 

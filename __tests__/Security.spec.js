@@ -1,6 +1,6 @@
 const { Parse, testUser } = global;
 
-describe('Account Class Tests', () => {
+describe('Account Class Security Tests', () => {
   test('Should get only my account', async () => {
     const query = new Parse.Query('Account');
     const accounts = await query.find({ sessionToken: testUser.getSessionToken() });
