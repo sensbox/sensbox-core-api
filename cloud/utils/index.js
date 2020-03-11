@@ -14,18 +14,9 @@ function secure(callback) {
   };
 }
 
-const clearSessionsFromUser = async (user) => {
-  const query = new Parse.Query(Parse.Session);
-  query.equalTo('user', user.toPointer());
-  const sessions = await query.find({ useMasterKey: true });
-  const promises = sessions.map((session) => session.destroy({ useMasterKey: true }));
-  const sessionsCleared = await Promise.all(promises);
-  return { sessions: sessionsCleared.map((s) => s.get('sessionToken')) };
-};
-
-const getUserRoles = async (user) => {
-  const roles = await new Parse.Query(Parse.Role).equalTo('users', user).find();
-  return roles;
+const getQueryAuthOptions = (user, master = false) => {
+  const options = master ? { useMasterKey: true } : { sessionToken: user.getSessionToken() };
+  return options;
 };
 
 function getArraysIntersection(list1, list2, ...otherLists) {
@@ -72,32 +63,10 @@ const generateRandomData = () => {
   return data;
 };
 
-const flatAccount = (account) => {
-  const profilePhoto = account.get('user').get('profilePhoto');
-  return {
-    userId: account.get('user').id,
-    accountId: account.id,
-    profilePhoto: profilePhoto || null,
-    username: account.get('username'),
-    firstName: account.get('firstName'),
-    lastName: account.get('lastName'),
-  };
-};
-
-const flatDevice = (device) => {
-  const flatted = device.toJSON();
-  delete flatted.key;
-  delete flatted.ACL;
-  return flatted;
-};
-
 module.exports = {
-  clearSessionsFromUser,
-  getUserRoles,
   getArraysIntersection,
   nullParser,
-  flatAccount,
-  flatDevice,
   generateRandomData,
   secure,
+  getQueryAuthOptions,
 };
