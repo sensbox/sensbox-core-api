@@ -17,7 +17,7 @@ class Base extends Parse.Object {
       acl.setPublicWriteAccess(false);
       acl.setRoleWriteAccess('ROLE_SUPER_ADMIN', true);
       acl.setRoleReadAccess('ROLE_SUPER_ADMIN', true);
-      if (!master) {
+      if (!master && user) {
         //   const roles = await getUserRoles(user);
         //   const userIsSuperAdmin = roles.map((r) => r.get('name')).includes('ROLE_SUPER_ADMIN');
         //   if (!userIsSuperAdmin) {

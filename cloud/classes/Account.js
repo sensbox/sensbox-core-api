@@ -38,7 +38,7 @@ class Account extends Base {
           user.setPassword(newPassword);
         }
         await user.save(null, { useMasterKey: true });
-        if (isBanned) await clearSessionsFromUser(user);
+        if (isBanned) await UserService.clearUserSessions(user);
       }
 
       account.unset('username');
