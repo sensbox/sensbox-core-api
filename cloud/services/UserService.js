@@ -17,25 +17,46 @@ const requestObjectPermissions = async (className, objectId, user, master) => {
     },
   };
 
-  const promises = Object.keys(ACL.permissionsById).map(async (userId) => {
-    const query = new Parse.Query('Account');
-    const User = Parse.Object.extend('_User');
-    query.equalTo('user', User.createWithoutData(userId).toPointer());
-    query.include('user');
-    const account = await query.first({ useMasterKey: true });
-    if (account) {
-      return {
-        userId,
-        read: ACL.permissionsById[userId].read,
-        write: ACL.permissionsById[userId].write,
-        account: AccountService.flatAccount(account),
-      };
-    }
-    return null;
-  });
+  const promises = Object.keys(ACL.permissionsById)
+    .filter((id) => !id.includes('role:'))
+    .map((userId) => {
+      const query = new Parse.Query('Account');
+      const User = Parse.Object.extend('_User');
+      query.equalTo('user', User.createWithoutData(userId).toPointer());
+      query.include('user');
+      return query.first({ useMasterKey: true }).then((account) => {
+        if (!account) return null;
+        return {
+          userId,
+          read: ACL.permissionsById[userId].read,
+          write: ACL.permissionsById[userId].write,
+          account: AccountService.flatAccount(account),
+        };
+      });
+    });
 
   const users = await Promise.all(promises);
   permissions.users = users.filter((u) => !!u);
+
+  const rolesPromises = Object.keys(ACL.permissionsById)
+    .filter((id) => id.includes('role:'))
+    .map((roleName) => {
+      const [, relatedClassName, relatedObjectId] = roleName.split('_');
+      // eslint-disable-next-line operator-linebreak
+      const sClassName =
+        relatedClassName.charAt(0).toUpperCase() + relatedClassName.toLowerCase().slice(1);
+
+      const query = new Parse.Query(sClassName);
+      return query.get(relatedObjectId, { useMasterKey: true }).then((obj) => ({
+        name: roleName.replace('role:', ''),
+        className: sClassName,
+        object: obj,
+      }));
+    });
+
+  const roles = await Promise.all(rolesPromises);
+  permissions.roles = roles.filter((r) => !!r);
+
   return { permissions };
 };
 
