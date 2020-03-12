@@ -2,6 +2,8 @@ const { Parse } = global;
 const { getQueryAuthOptions } = require('../utils');
 const AccountService = require('../services/AccountService');
 
+const SYSTEM_ROLES = ['role:ROLE_SUPER_ADMIN'];
+
 const requestObjectPermissions = async (className, objectId, user, master) => {
   if (!(className && objectId)) {
     throw new Parse.Error(400, 'Invalid Parameters: className and objectId should be provided');
@@ -39,19 +41,23 @@ const requestObjectPermissions = async (className, objectId, user, master) => {
   permissions.users = users.filter((u) => !!u);
 
   const rolesPromises = Object.keys(ACL.permissionsById)
-    .filter((id) => id.includes('role:'))
+    .filter((id) => id.includes('role:') && !SYSTEM_ROLES.includes(id))
     .map((roleName) => {
       const [, relatedClassName, relatedObjectId] = roleName.split('_');
       // eslint-disable-next-line operator-linebreak
       const sClassName =
         relatedClassName.charAt(0).toUpperCase() + relatedClassName.toLowerCase().slice(1);
-
       const query = new Parse.Query(sClassName);
-      return query.get(relatedObjectId, { useMasterKey: true }).then((obj) => ({
-        name: roleName.replace('role:', ''),
-        className: sClassName,
-        object: obj,
-      }));
+      return query.get(relatedObjectId, { useMasterKey: true }).then((obj) => {
+        if (!obj.get('defaultRole')) return null;
+        return {
+          name: roleName.replace('role:', ''),
+          className: sClassName,
+          object: obj,
+          read: ACL.permissionsById[roleName].read,
+          write: ACL.permissionsById[roleName].write,
+        };
+      });
     });
 
   const roles = await Promise.all(rolesPromises);
