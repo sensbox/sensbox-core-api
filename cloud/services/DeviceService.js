@@ -3,13 +3,6 @@ const passwordCrypto = require('parse-server/lib/password');
 const { getDatabaseInstance } = require('../utils/core');
 const { getArraysIntersection, getQueryAuthOptions } = require('../utils');
 
-const flatDevice = (device) => {
-  const flatted = device.toJSON();
-  delete flatted.key;
-  delete flatted.ACL;
-  return flatted;
-};
-
 const findDeviceById = (deviceId, user, master) => {
   const query = new Parse.Query('Device');
   const queryOptions = getQueryAuthOptions(user, master);
@@ -86,7 +79,6 @@ const requestDeviceKey = async (uuid, password, user) => {
 };
 
 module.exports = {
-  flatDevice,
   findDeviceById,
   findDevicesById,
   findDeviceByUUID,

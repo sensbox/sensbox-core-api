@@ -112,6 +112,18 @@ class Account extends Base {
     await UserService.clearUserSessions(user);
     user.destroy({ useMasterKey: true });
   }
+
+  flat() {
+    const profilePhoto = this.get('user').get('profilePhoto');
+    return {
+      userId: this.get('user').id,
+      accountId: this.id,
+      profilePhoto: profilePhoto || null,
+      username: this.get('username'),
+      firstName: this.get('firstName'),
+      lastName: this.get('lastName'),
+    };
+  }
 }
 
 module.exports = Account;

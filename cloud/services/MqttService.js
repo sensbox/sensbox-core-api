@@ -1,5 +1,5 @@
 const { Parse } = global;
-const { findDeviceByUUID, flatDevice, findSensorsByDevice } = require('../services/DeviceService');
+const { findDeviceByUUID, findSensorsByDevice } = require('../services/DeviceService');
 
 const DEVICE_MESSAGE_TOPIC = 'agent/message';
 const DEVICE_CONNECTED_TOPIC = 'agent/connected';
@@ -48,7 +48,7 @@ const setDeviceStatus = async (uuid, connected) => {
     await disconnectSensors(sensors);
   }
   await device.save(null, { useMasterKey: true });
-  return { connected, device: flatDevice(device) };
+  return { connected, device: device.flat() };
 };
 
 const handlePayload = async (payload) => {
@@ -99,7 +99,7 @@ const handlePayload = async (payload) => {
 
   return {
     stored: true,
-    device: flatDevice(device),
+    device: device.flat(),
   };
 };
 
@@ -112,7 +112,7 @@ const authorizeClient = async (username, password) => {
   query.equalTo('key', password);
   const device = await query.first({ useMasterKey: true });
   if (!device) throw new Parse.Error(403, 'Client unauthenticated. Bad Credentials');
-  return { authorized: true, device: flatDevice(device) };
+  return { authorized: true, device: device.flat() };
 };
 
 module.exports = {

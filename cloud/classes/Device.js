@@ -72,6 +72,13 @@ class Device extends Base {
     );
     return device;
   }
+
+  flat() {
+    const flatted = this.toJSON();
+    delete flatted.key;
+    delete flatted.ACL;
+    return flatted;
+  }
 }
 
 module.exports = Device;

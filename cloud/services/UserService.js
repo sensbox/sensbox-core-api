@@ -32,7 +32,7 @@ const requestObjectPermissions = async (className, objectId, user, master) => {
           userId,
           read: ACL.permissionsById[userId].read,
           write: ACL.permissionsById[userId].write,
-          account: AccountService.flatAccount(account),
+          account: account.flat(),
         };
       });
     });
@@ -81,7 +81,7 @@ const findUsersByText = async (text, user) => {
   if (result.length > 0) {
     const promises = result.map((u) => AccountService.findByUser(u, true));
     const results = await Promise.all(promises);
-    return results.map((a) => AccountService.flatAccount(a));
+    return results.map((a) => a.flat());
   }
   // If no results, will query on Account Class
   const firstNameQuery = new Parse.Query('Account');
@@ -94,7 +94,7 @@ const findUsersByText = async (text, user) => {
   // Prevent to fetch the user that request endpoint
   accountQuery.notEqualTo('user', user.toPointer());
   result = await accountQuery.find({ useMasterKey: true });
-  return result.map((a) => AccountService.flatAccount(a));
+  return result.map((a) => a.flat());
 };
 
 const findRolesByUser = async (user) => {

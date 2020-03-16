@@ -20,6 +20,18 @@ const createTestAccount = async (Parse, firstName = 'jest', username) => {
   return account;
 };
 
+const registerClasses = () => {
+  const { Parse } = global;
+  // eslint-disable-next-line global-require
+  const classes = require('../../cloud/classes');
+  const classesArray = Object.keys(classes).map((key) => classes[key]);
+
+  classesArray.forEach((c) => {
+    Parse.Object.registerSubclass(c.name, c);
+  });
+};
+
 module.exports = {
   createTestAccount,
+  registerClasses,
 };

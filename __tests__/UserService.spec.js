@@ -3,6 +3,10 @@ const utils = require('./utils');
 
 const UserService = require('../cloud/services/UserService');
 
+beforeAll(() => {
+  utils.registerClasses();
+});
+
 describe('UserService tests', () => {
   test('clear all active sessions for a given user', async () => {
     const fakeAccount = await utils.createTestAccount(Parse);

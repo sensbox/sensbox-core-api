@@ -9,24 +9,33 @@ class Base extends Parse.Object {
         request.object.set(attribute, value.trim());
       }
     });
-    // Save blameable information
+
+    if (user) {
+      if (request.object.isNew()) {
+        request.object.set('createdBy', user);
+      } else {
+        request.object.set('updatedBy', user);
+      }
+    }
+
+    let acl;
     if (request.object.isNew()) {
-      if (user) request.object.set('createdBy', user);
-      const acl = new Parse.ACL();
+      acl = new Parse.ACL();
       acl.setPublicReadAccess(false);
       acl.setPublicWriteAccess(false);
-      acl.setRoleWriteAccess('ROLE_SUPER_ADMIN', true);
-      acl.setRoleReadAccess('ROLE_SUPER_ADMIN', true);
-      if (!master && user) {
-        //   const roles = await getUserRoles(user);
-        //   const userIsSuperAdmin = roles.map((r) => r.get('name')).includes('ROLE_SUPER_ADMIN');
-        //   if (!userIsSuperAdmin) {
-        acl.setWriteAccess(user, true);
-        acl.setReadAccess(user, true);
-        // }
+    } else {
+      acl = request.object.getACL();
+    }
+
+    // ensure read and write permissions to owner
+    if (!master) {
+      const createdBy = request.object.get('createdBy');
+      if (createdBy) {
+        acl.setWriteAccess(createdBy, true);
+        acl.setReadAccess(createdBy, true);
       }
-      request.object.setACL(acl);
-    } else if (user) request.object.set('updatedBy', user);
+    }
+    request.object.setACL(acl);
   }
 
   static afterSave() {}

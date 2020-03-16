@@ -27,6 +27,10 @@ class Zone extends Base {
     const role = organization.get('defaultRole');
     await role.destroy({ useMasterKey: true });
   }
+
+  toString() {
+    return this.get('name');
+  }
 }
 
 module.exports = Zone;
