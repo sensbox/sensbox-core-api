@@ -2,7 +2,7 @@ version: 2.1
 executors:
   docker-publisher:
     environment:
-      IMAGE_NAME: santiagosemhan/sensbox-core-api
+      IMAGE_NAME: sensbox/sensbox-core-api
     docker:
       - image: santiagosemhan/sensbox-core-api-test-environment:0.0.3
         environment:
@@ -30,16 +30,16 @@ jobs:
       - run:
           name: Updating Parse Schema into MongoDB Server
           command: npm run seed
-      - run:
-          name: Run Dev Server
-          command: npm run test-server-start
-          background: true
-      - run:
-          name: Waits for dev Server start
-          shell: /bin/sh
-          command: |
-            wget --retry-connrefused --waitretry=1 --read-timeout=20 --timeout=15 -t 10 http://localhost:4444/parse
-            :
+      # - run:
+      #     name: Run Dev Server
+      #     command: npm run test-server-start
+      #     background: true
+      # - run:
+      #     name: Waits for dev Server start
+      #     shell: /bin/sh
+      #     command: |
+      #       wget --retry-connrefused --waitretry=1 --read-timeout=20 --timeout=15 -t 10 http://localhost:4444/parse
+      #       :
       - run:
           name: Run Test suite
           command: npm run test
