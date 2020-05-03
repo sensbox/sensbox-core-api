@@ -13,7 +13,7 @@ class Device extends Base {
     const { object, original } = request;
     await super.beforeSave(request);
     // prevent query for uuid when not changed
-    if (object.isNew() || (original && original.get('uuid')) !== object.get('uuid')) {
+    if (object.isNew() || (original && original.get('uuid') !== object.get('uuid'))) {
       const query = new Parse.Query('Device');
       const uuid = request.object.get('uuid');
       query.equalTo('uuid', uuid);
