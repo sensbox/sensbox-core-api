@@ -116,7 +116,7 @@ const authorizeClient = async (
   password: string,
 ): Promise<{ authorized: boolean; device: object }> => {
   if (username === undefined || password === undefined) {
-    throw new Parse.Error(403, 'Username and Password have to be set.');
+    throw new Parse.Error(403, 'uuid and key required.');
   }
   const query = new Parse.Query('Device');
   query.equalTo('uuid', username);
