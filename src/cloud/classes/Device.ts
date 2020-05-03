@@ -12,26 +12,24 @@ class Device extends Base {
   static async beforeSave(request: Parse.Cloud.BeforeSaveRequest) {
     const { object, original } = request;
     await super.beforeSave(request);
-    if (original) {
-      // prevent query for uuid when not changed
-      if (object.isNew() || object.get('uuid') !== original.get('uuid')) {
-        const query = new Parse.Query('Device');
-        const uuid = request.object.get('uuid');
-        query.equalTo('uuid', uuid);
-        const result = await query.first({ useMasterKey: true });
-        if (result && request.object.id !== result.id) {
-          throw new Parse.Error(
-            400,
-            JSON.stringify({
-              uuid: [`${uuid} is already registered.`],
-            }),
-          );
-        }
+    // prevent query for uuid when not changed
+    if (object.isNew() || (original && original.get('uuid')) !== object.get('uuid')) {
+      const query = new Parse.Query('Device');
+      const uuid = request.object.get('uuid');
+      query.equalTo('uuid', uuid);
+      const result = await query.first({ useMasterKey: true });
+      if (result && request.object.id !== result.id) {
+        throw new Parse.Error(
+          400,
+          JSON.stringify({
+            uuid: [`${uuid} is already registered.`],
+          }),
+        );
+      }
 
-        if (request.object.isNew()) {
-          const key = hat();
-          request.object.set('key', key);
-        }
+      if (request.object.isNew()) {
+        const key = hat();
+        request.object.set('key', key);
       }
     }
   }
