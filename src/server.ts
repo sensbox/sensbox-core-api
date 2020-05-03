@@ -48,7 +48,7 @@ const overrideParseServerHeaders = (req, res, next) => {
 // make the Parse Server available at /parse
 app.use('/parse', overrideParseServerHeaders, api);
 // make the Parse Dashboard available at /dashboard
-app.use('/dashboard', dashboard);
+app.use('/', dashboard);
 
 const httpServer = http.createServer(app);
 // eslint-disable-next-line no-console
