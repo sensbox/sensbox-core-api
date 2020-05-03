@@ -15,7 +15,7 @@ module.exports = {
   // cacheDirectory: "/private/var/folders/ch/mrydgrfs7z53fd8bxq3p67sh0000gn/T/jest_dx",
 
   // Automatically clear mock calls and instances between every test
-  // clearMocks: false,
+  clearMocks: true,
 
   // Indicates whether the coverage information should be collected while executing the test
   // collectCoverage: false,
@@ -52,10 +52,10 @@ module.exports = {
   // forceCoverageMatch: [],
 
   // A path to a module which exports an async function that is triggered once before all test suites
-  // globalSetup: '<rootDir>/__tests__/setup/setup',
+  // globalSetup: undefined,
 
   // A path to a module which exports an async function that is triggered once after all test suites
-  // globalTeardown: '<rootDir>/__tests__/setup/teardown',
+  // globalTeardown: undefined,
 
   // A set of global variables that need to be available in all test environments
   // globals: {},
@@ -78,7 +78,7 @@ module.exports = {
   //   "node"
   // ],
 
-  // A map from regular expressions to module names that allow to stub out resources with a single module
+  // A map from regular expressions to module names or to arrays of module names that allow to stub out resources with a single module
   // moduleNameMapper: {},
 
   // An array of regexp pattern strings, matched against all module paths before considered 'visible' to the module loader
@@ -123,7 +123,7 @@ module.exports = {
   // runner: "jest-runner",
 
   // The paths to modules that run some code to configure or set up the testing environment before each test
-  // setupFiles: ['<rootDir>/__tests__/setup/global'],
+  setupFiles: ['<rootDir>/__tests__/setup/setup.js'],
 
   // A list of paths to modules that run some code to configure or set up the testing framework before each test
   // setupFilesAfterEnv: [],
@@ -132,7 +132,7 @@ module.exports = {
   // snapshotSerializers: [],
 
   // The test environment that will be used for testing
-  testEnvironment: '<rootDir>/__tests__/setup/ParseEnvironment',
+  testEnvironment: 'node',
 
   // Options that will be passed to the testEnvironment
   // testEnvironmentOptions: {},
@@ -147,12 +147,7 @@ module.exports = {
   // ],
 
   // An array of regexp pattern strings that are matched against all test paths, matched tests are skipped
-  testPathIgnorePatterns: [
-    '<rootDir>/build/',
-    '<rootDir>/node_modules/',
-    '<rootDir>/__tests__/setup/',
-    '<rootDir>/__tests__/utils/',
-  ],
+  testPathIgnorePatterns: ['/node_modules/', '<rootDir>/__tests__/setup/'],
 
   // The regexp pattern or array of patterns that Jest uses to detect test files
   // testRegex: [],

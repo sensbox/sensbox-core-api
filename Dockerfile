@@ -9,18 +9,21 @@ RUN wget -qO - http://www.mongodb.org/static/pgp/server-4.2.asc | apt-key add - 
     apt-get update &&\
     apt-get install -y mongodb-org-tools
 
+ENV NPM_CONFIG_LOGLEVEL warn
 # Install app dependencies
 COPY package.json package.json
 COPY package-lock.json package-lock.json
-ENV NPM_CONFIG_LOGLEVEL warn
+# RUN if [ "$NPM_RUN_SCRIPT" = "start" ] ; then npm run ci ; else npm install -D; fi
 RUN npm ci
 
 # Bundle APP files
-COPY server.js server.js
-COPY config.js config.js
-COPY cloud ./cloud
 COPY seeds ./seeds
+COPY tsconfig.json tsconfig.json
+COPY src ./src
+
+# Build app if it's needed
+RUN if [ "$NPM_RUN_SCRIPT" = "start" ] ; then npm run build ; fi 
 
 # Expose the listening port of your app
-EXPOSE 4040
+EXPOSE 4444
 CMD ["sh", "-c", "npm run ${NPM_RUN_SCRIPT}"]
