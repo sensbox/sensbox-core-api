@@ -5,7 +5,7 @@ import ParseServerOptions from './config';
 const { ParseServer } = require('parse-server');
 const ParseDashboard = require('parse-dashboard');
 
-const { masterKey, appId, liveQuery, serverURL, port } = ParseServerOptions;
+const { masterKey, readOnlyMasterKey, appId, liveQuery, serverURL, port } = ParseServerOptions;
 const defaultDashboardUser = process.env.PARSE_SERVER_DASHBOARD_USER;
 const defaultDashboardPass = process.env.PARSE_SERVER_DASHBOARD_PASS;
 const testUser = process.env.DASHBOARD_TEST_USER;
@@ -22,6 +22,7 @@ const dashboard = new ParseDashboard(
         // graphQLServerURL: "http://localhost:4040/parse/graphql",
         appId,
         masterKey,
+        readOnlyMasterKey,
       },
     ],
     users: [
