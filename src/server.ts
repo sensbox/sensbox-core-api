@@ -8,6 +8,9 @@ const ParseDashboard = require('parse-dashboard');
 const { masterKey, appId, liveQuery, serverURL, port } = ParseServerOptions;
 const defaultDashboardUser = process.env.PARSE_SERVER_DASHBOARD_USER;
 const defaultDashboardPass = process.env.PARSE_SERVER_DASHBOARD_PASS;
+const testUser = process.env.DASHBOARD_TEST_USER;
+const testPass = process.env.DASHBOARD_TEST_PASS;
+const testReadOnly = process.env.DASHBOARD_TEST_READONLY || true;
 
 const api = new ParseServer(ParseServerOptions);
 const dashboard = new ParseDashboard(
@@ -26,10 +29,19 @@ const dashboard = new ParseDashboard(
         user: defaultDashboardUser,
         pass: defaultDashboardPass,
       },
+      {
+        user: testUser,
+        pass: testPass,
+        readOnly: testReadOnly,
+      },
     ],
     useEncryptedPasswords: true,
   },
-  { allowInsecureHTTP: Boolean(process.env.ALLOW_INSECURE_HTTP) || false },
+  {
+    cookieSessionSecret: process.env.COOKIE_SESSION_SECRET || 'session_secret',
+    trustProxy: 1,
+    allowInsecureHTTP: !!process.env.ALLOW_INSECURE_HTTP || false,
+  },
 );
 
 const app = express();
