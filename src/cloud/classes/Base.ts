@@ -1,7 +1,7 @@
 /* eslint-disable @typescript-eslint/no-unused-vars */
 
 class Base extends Parse.Object {
-  static async beforeSave(request: Parse.Cloud.BeforeSaveRequest) {
+  static beforeSave(request: Parse.Cloud.BeforeSaveRequest) {
     const { user, master } = request;
     Object.keys(request.object.attributes).forEach((attribute) => {
       const value = request.object.get(attribute);
@@ -29,27 +29,25 @@ class Base extends Parse.Object {
 
     // ensure read and write permissions to owner
     if (!master) {
-      const createdBy = request.object.get('createdBy');
-      if (acl && createdBy) {
-        acl.setWriteAccess(createdBy, true);
-        acl.setReadAccess(createdBy, true);
+      const createdBy: Parse.User = request.object.get('createdBy');
+      if (createdBy && acl) {
+        acl.setWriteAccess(createdBy.id, true);
+        acl.setReadAccess(createdBy.id, true);
       }
     }
     if (acl) request.object.setACL(acl);
   }
 
-  static afterSave(request: Parse.Cloud.AfterSaveRequest): any {
-  }
+  static afterSave(request: Parse.Cloud.AfterSaveRequest): any {}
 
-  static beforeDelete(request: Parse.Cloud.BeforeDeleteRequest): any {
-  }
+  static beforeDelete(request: Parse.Cloud.BeforeDeleteRequest): any {}
 
-  static afterDelete(request: Parse.Cloud.BeforeFindRequest): any {
-  }
+  static afterDelete(request: Parse.Cloud.BeforeFindRequest): any {}
 
-  static beforeFind(request: Parse.Cloud.BeforeFindRequest) {
+  static beforeFind(request: Parse.Cloud.BeforeFindRequest): any {
     const { query, master: isMaster } = request;
     if (!isMaster) query.doesNotExist('deletedAt');
+    return request;
   }
 
   static afterFind(request: Parse.Cloud.AfterFindRequest): any {}
