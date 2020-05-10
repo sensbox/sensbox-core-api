@@ -28,7 +28,7 @@ class Account extends Base {
 
         // signup via mobile app
         if (!requestUser) {
-          account.set('createdBy', requestUser);
+          account.set('createdBy', user);
         }
         const acl = account.getACL();
         if (acl) {
