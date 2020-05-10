@@ -106,10 +106,12 @@ class Account extends Base {
 
   static async afterSave(request: Parse.Cloud.AfterSaveRequest) {
     const account = request.object;
-    const { userAccount } = <{ userAccount: Parse.User }>request.context;
-    account.set('username', userAccount.getUsername());
-    account.set('email', userAccount.getEmail());
-    account.set('userSessionToken', userAccount.getSessionToken());
+    if (!account.existed()) {
+      const { userAccount } = <{ userAccount: Parse.User }>request.context;
+      account.set('username', userAccount.getUsername());
+      account.set('email', userAccount.getEmail());
+      account.set('userSessionToken', userAccount.getSessionToken());
+    }
     return account;
   }
 
