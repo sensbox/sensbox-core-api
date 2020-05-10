@@ -5,11 +5,4 @@ import Sensor from './Sensor';
 import Account from './Account';
 import Dashboard from './Dashboard';
 
-export {
-  Device,
-  Organization,
-  Zone,
-  Sensor,
-  Account,
-  Dashboard,
-};
+export { Device, Organization, Zone, Sensor, Account, Dashboard };

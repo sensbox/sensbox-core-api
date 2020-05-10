@@ -1,4 +1,3 @@
-
 import Base from './Base';
 
 const { UserService } = require('../services');
@@ -11,7 +10,7 @@ class Account extends Base {
   static async beforeSave(request: Parse.Cloud.BeforeSaveRequest) {
     await super.beforeSave(request);
     try {
-      const { object: account } = request;
+      const { user: requestUser, object: account } = request;
       if (account.isNew()) {
         const firstName = account.get('firstName');
         const lastName = account.get('lastName');
@@ -26,6 +25,11 @@ class Account extends Base {
         user.set('isBanned', isBanned);
         await user.save(null, { useMasterKey: true });
         account.set('user', user);
+
+        // signup via mobile app
+        if (!requestUser) {
+          account.set('createdBy', user);
+        }
         const acl = account.getACL();
         if (acl) {
           acl.setWriteAccess(user, true);
@@ -84,7 +88,6 @@ class Account extends Base {
       if (linkedUser) {
         try {
           const query = new Parse.Query(Parse.User);
-
           const user = await query.get(account.get('user').id, { useMasterKey: true });
           if (user) {
             account.set('username', user.getUsername());
@@ -103,9 +106,12 @@ class Account extends Base {
 
   static async afterSave(request: Parse.Cloud.AfterSaveRequest) {
     const account = request.object;
-    const { userAccount } = <{ userAccount: Parse.User }>request.context;
-    account.set('username', userAccount.getUsername());
-    account.set('email', userAccount.getEmail());
+    if (!account.existed()) {
+      const { userAccount } = <{ userAccount: Parse.User }>request.context;
+      account.set('username', userAccount.getUsername());
+      account.set('email', userAccount.getEmail());
+      account.set('userSessionToken', userAccount.getSessionToken());
+    }
     return account;
   }
 
