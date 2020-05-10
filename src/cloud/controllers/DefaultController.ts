@@ -5,6 +5,11 @@ const ping = () => ({
   time: new Date(),
 });
 
+const me = (request: Sensbox.SecureFunctionRequest) => {
+  const { user } = request;
+  return user;
+};
+
 // TODO: check if there is a need of control roles
 const findUsersByText = async (request: Sensbox.SecureFunctionRequest) => {
   const { user, params } = request;
@@ -25,6 +30,7 @@ const requestDeviceKey = async (request: Sensbox.SecureFunctionRequest) => {
 };
 
 export default {
+  me,
   ping,
   findUsersByText,
   requestObjectPermissions,

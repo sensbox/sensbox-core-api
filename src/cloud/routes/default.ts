@@ -1,6 +1,10 @@
 import { DefaultController } from '../controllers';
 
 const definitions: Sensbox.RouteDefinitions = {
+  me: {
+    action: DefaultController.me,
+    secure: true,
+  },
   ping: {
     action: DefaultController.ping,
     secure: false,
