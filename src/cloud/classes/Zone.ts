@@ -1,4 +1,3 @@
-
 import Base from './Base';
 
 class Zone extends Base {
@@ -24,8 +23,10 @@ class Zone extends Base {
 
   static async afterDelete(request: Parse.Cloud.AfterDeleteRequest) {
     const { object: organization } = request;
-    const role = organization.get('defaultRole');
-    await role.destroy({ useMasterKey: true });
+    const defaultRole = organization.get('defaultRole');
+    if (defaultRole) {
+      await defaultRole.destroy({ useMasterKey: true });
+    }
   }
 
   toString() {

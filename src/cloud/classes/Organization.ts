@@ -1,4 +1,3 @@
-
 import Base from './Base';
 
 class Organization extends Base {
@@ -40,10 +39,12 @@ class Organization extends Base {
     const query = new Parse.Query('Zone');
     query.equalTo('organization', organization.toPointer());
     const zones = await query.find({ useMasterKey: true });
-    Parse.Object.destroyAll(zones, { useMasterKey: true });
+    await Parse.Object.destroyAll(zones, { useMasterKey: true });
 
-    const role = organization.get('defaultRole');
-    await role.destroy({ useMasterKey: true });
+    const defaultRole = organization.get('defaultRole');
+    if (defaultRole) {
+      await defaultRole.destroy({ useMasterKey: true });
+    }
   }
 }
 
