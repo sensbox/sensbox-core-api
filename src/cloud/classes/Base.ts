@@ -21,6 +21,8 @@ class Base extends Parse.Object {
     let acl: Parse.ACL | undefined;
     if (request.object.isNew()) {
       acl = new Parse.ACL();
+      acl.setRoleWriteAccess('ROLE_ADMINISTRATOR', true);
+      acl.setRoleReadAccess('ROLE_ADMINISTRATOR', true);
       acl.setPublicReadAccess(false);
       acl.setPublicWriteAccess(false);
     } else {
