@@ -1,5 +1,46 @@
 const { Expression } = require('influx');
 
+const fetchRaw = async (params: Sensbox.InfluxQueryParams) => {
+  const e = new Expression();
+  // @ts-ignore
+  const { InfluxDB } = Parse.Integrations;
+  const { uuid, metrics, from: fromParam, to = new Date() } = params;
+
+  let from = fromParam;
+  if (!from) {
+    from = new Date();
+    from.setDate(from.getDate() - 7);
+  }
+
+  if (Array.isArray(uuid)) {
+    uuid.forEach((i) => e.tag('host').equals.value(i).and);
+  } else {
+    // eslint-disable-next-line @typescript-eslint/no-unused-expressions
+    e.tag('host').equals.value(uuid).and;
+  }
+
+  e.field('time')
+    .gte.value(from.toISOString())
+    .and.field('time')
+    .lte.value(to.toISOString());
+
+  const where = e.toString();
+
+  const results = await InfluxDB.query(
+    `
+    select value
+    FROM ${metrics.join(',')}
+    WHERE ${where}
+    ORDER BY time desc
+  ;`,
+    {
+      precision: 'ms',
+    },
+  );
+
+  return results;
+};
+
 const fetch = async (params: Sensbox.InfluxQueryParams) => {
   const e = new Expression();
   // @ts-ignore
@@ -101,5 +142,6 @@ const fetchSeries = async (series: []) => {
 
 export default {
   fetch,
+  fetchRaw,
   fetchSeries,
 };
