@@ -113,10 +113,12 @@ class Account extends Base {
   }
 
   static async afterDelete(request: Parse.Cloud.AfterDeleteRequest) {
-    const account = request.object;
+    const { object: account } = request;
     const user = account.get('user');
-    await UserService.clearUserSessions(user);
-    user.destroy({ useMasterKey: true });
+    if (user) {
+      await UserService.clearUserSessions(user);
+      user.destroy({ useMasterKey: true });
+    }
   }
 
   flat() {
