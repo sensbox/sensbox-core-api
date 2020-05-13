@@ -10,18 +10,16 @@ class Account extends Base {
   static async beforeSave(request: Parse.Cloud.BeforeSaveRequest) {
     await super.beforeSave(request);
     try {
-      const { user: requestUser, object: account } = request;
+      const { master, user: requestUser, object: account } = request;
+      if (master) return;
       if (account.isNew()) {
-        const firstName = account.get('firstName');
-        const lastName = account.get('lastName');
         const email = account.get('email');
         const password = account.get('password');
         const isBanned = !account.get('active');
-        const username = `${firstName.toLowerCase()}.${lastName.toLowerCase()}`;
         const user = new Parse.User();
-        user.setUsername(username);
-        user.setPassword(password);
+        user.setUsername(email);
         user.setEmail(email);
+        user.setPassword(password);
         user.set('isBanned', isBanned);
         await user.save(null, { useMasterKey: true });
         account.set('user', user);
@@ -48,7 +46,6 @@ class Account extends Base {
         if (isBanned) await UserService.clearUserSessions(user);
       }
 
-      account.unset('username');
       account.unset('password');
       account.unset('email');
 
