@@ -1,4 +1,4 @@
-const { InfluxController } = require('../controllers');
+import { InfluxController } from '../controllers';
 
 const definitions: Sensbox.RouteDefinitions = {
   metricsStoreFetch: {

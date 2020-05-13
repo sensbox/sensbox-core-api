@@ -1,4 +1,4 @@
-const { SensorController } = require('../controllers');
+import { SensorController } from '../controllers';
 
 const definitions: Sensbox.RouteDefinitions = {
   findSensorsByDevices: {
