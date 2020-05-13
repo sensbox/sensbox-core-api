@@ -9,6 +9,14 @@ const definitions: Sensbox.RouteDefinitions = {
     action: AccountController.setAccountToBasic,
     secure: true,
   },
+  addNewAddress: {
+    action: AccountController.addNewAddress,
+    secure: true,
+  },
+  editAddress: {
+    action: AccountController.editAddress,
+    secure: true,
+  },
 };
 
 export default definitions;
