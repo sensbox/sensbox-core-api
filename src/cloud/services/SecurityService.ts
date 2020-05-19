@@ -1,3 +1,5 @@
+import { RolesType } from '../../types/constants';
+
 const getUserRoles = async (user: Parse.User): Promise<Parse.Role[]> => {
   const roles = await new Parse.Query(Parse.Role).equalTo('users', user).find();
   return roles;
@@ -14,7 +16,7 @@ const hasUserRole = async (user: Parse.User, roleName: Sensbox.RolesType): Promi
 };
 
 const ensureIsAdmin = async (user: Parse.User): Promise<boolean> => {
-  const isAdmin = await hasUserRole(user, Sensbox.RolesType.ADMINISTRATOR);
+  const isAdmin = await hasUserRole(user, RolesType.ADMINISTRATOR);
   if (!isAdmin) {
     throw new Parse.Error(Parse.Error.OPERATION_FORBIDDEN, 'Cannot perform this action.');
   }
@@ -23,7 +25,7 @@ const ensureIsAdmin = async (user: Parse.User): Promise<boolean> => {
 
 const getAdminRole = async (): Promise<Parse.Role | undefined> => {
   const roleQuery = new Parse.Query(Parse.Role);
-  roleQuery.equalTo('name', Sensbox.RolesType.ADMINISTRATOR);
+  roleQuery.equalTo('name', RolesType.ADMINISTRATOR);
   const role = await roleQuery.first({ useMasterKey: true });
   return role;
 };

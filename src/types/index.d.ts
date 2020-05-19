@@ -1,10 +1,7 @@
 declare namespace Sensbox {
   type NotificationTypesType = '' | '';
 
-  enum RolesType {
-    SUPERADMIN = 'ROLE_SUPERADMIN',
-    ADMINISTRATOR = 'ROLE_ADMINISTRATOR',
-  }
+  type RolesType = 'ROLE_SUPERADMIN' | 'ROLE_ADMINISTRATOR';
 
   type CloudFunction = (request: Parse.Cloud.FunctionRequest) => any;
   type SecureCloudFunction = (request: SecureFunctionRequest) => any;
