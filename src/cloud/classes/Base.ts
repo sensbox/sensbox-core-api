@@ -1,4 +1,5 @@
 /* eslint-disable @typescript-eslint/no-unused-vars */
+import { RolesType } from '../../types/constants';
 
 class Base extends Parse.Object {
   static beforeSave(request: Parse.Cloud.BeforeSaveRequest) {
@@ -21,8 +22,8 @@ class Base extends Parse.Object {
     let acl: Parse.ACL | undefined;
     if (request.object.isNew()) {
       acl = new Parse.ACL();
-      acl.setRoleWriteAccess(Sensbox.RolesType.ADMINISTRATOR, true);
-      acl.setRoleReadAccess(Sensbox.RolesType.ADMINISTRATOR, true);
+      acl.setRoleWriteAccess(RolesType.ADMINISTRATOR, true);
+      acl.setRoleReadAccess(RolesType.ADMINISTRATOR, true);
       acl.setPublicReadAccess(false);
       acl.setPublicWriteAccess(false);
     } else {
