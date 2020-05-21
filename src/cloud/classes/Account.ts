@@ -1,4 +1,6 @@
 import Base from './Base';
+import SecurityService from '../services/SecurityService';
+import { RolesType } from '../../types/constants';
 
 const { UserService } = require('../services');
 
@@ -87,8 +89,10 @@ class Account extends Base {
           const query = new Parse.Query(Parse.User);
           const user = await query.get(account.get('user').id, { useMasterKey: true });
           if (user) {
+            const isAdmin = await SecurityService.hasUserRole(user, RolesType.ADMINISTRATOR);
             account.set('username', user.getUsername());
             account.set('email', user.getEmail());
+            account.set('isAdmin', isAdmin);
           }
         } catch (error) {
           account.set('username', 'User not found');
