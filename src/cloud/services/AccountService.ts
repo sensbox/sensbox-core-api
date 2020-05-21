@@ -4,7 +4,7 @@ import Address from '../classes/Address';
 
 const findById = async (accountId: string): Promise<Parse.Object> => {
   const accountQuery = new Parse.Query('Account');
-  return accountQuery.get(accountId);
+  return accountQuery.get(accountId, { useMasterKey: true });
 };
 
 const findByUser = (
