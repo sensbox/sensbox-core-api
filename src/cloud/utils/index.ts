@@ -72,7 +72,7 @@ const booleanParser = (
   if (opt === 'false') {
     return false;
   }
-  return opt;
+  return Boolean(opt) === true;
 };
 
 const generateRandomData = () => {

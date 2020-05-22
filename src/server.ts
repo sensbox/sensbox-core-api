@@ -11,7 +11,7 @@ const defaultDashboardUser = process.env.PARSE_SERVER_DASHBOARD_USER;
 const defaultDashboardPass = process.env.PARSE_SERVER_DASHBOARD_PASS;
 const testUser = process.env.DASHBOARD_TEST_USER;
 const testPass = process.env.DASHBOARD_TEST_PASS;
-const testReadOnly = booleanParser(process.env.DASHBOARD_TEST_READONLY) === true;
+const testReadOnly = booleanParser(process.env.DASHBOARD_TEST_READONLY);
 
 const api = new ParseServer(ParseServerOptions);
 const dashboard = new ParseDashboard(
