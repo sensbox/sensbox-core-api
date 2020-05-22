@@ -1,4 +1,4 @@
-const { Expression } = require('influx');
+import { Expression } from 'influx';
 
 const fetchRaw = async (params: Sensbox.InfluxQueryParams) => {
   const e = new Expression();

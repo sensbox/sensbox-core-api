@@ -1,6 +1,7 @@
+import { getDatabaseInstance } from '../utils/core';
+import { getArraysIntersection, getQueryAuthOptions } from '../utils';
+
 const passwordCrypto = require('parse-server/lib/password');
-const { getDatabaseInstance } = require('../utils/core');
-const { getArraysIntersection, getQueryAuthOptions } = require('../utils');
 
 const findDeviceById = (
   deviceId: string,
@@ -25,7 +26,7 @@ const findDevicesById = async (
 
 const findDeviceByUUID = async (
   uuid: string,
-  user: Parse.User | void,
+  user: Parse.User | undefined,
   master: boolean,
 ): Promise<Sensbox.Device> => {
   const queryOptions = getQueryAuthOptions(user, master);
@@ -56,6 +57,7 @@ const findSensorsByDevicesIds = async (
       const deviceSensors = device.get('sensors');
       return deviceSensors.map((sensor: any) => ({ name: sensor.name }));
     });
+    // @ts-ignore
     sensors = getArraysIntersection(...sensorsList).map((sensor: any) => ({
       objectId: 'mix',
       name: sensor.name,

@@ -1,5 +1,5 @@
-const { getQueryAuthOptions } = require('../utils');
-const AccountService = require('./AccountService');
+import { getQueryAuthOptions } from '../utils';
+import AccountService from './AccountService';
 
 const SYSTEM_ROLES = ['role:ROLE_SUPER_ADMIN'];
 
@@ -7,7 +7,7 @@ const requestObjectPermissions = async (
   className: string,
   objectId: string,
   user: Parse.User,
-  master: boolean | void,
+  master: boolean | undefined,
 ) => {
   if (!(className && objectId)) {
     throw new Parse.Error(400, 'Invalid Parameters: className and objectId should be provided');
@@ -87,9 +87,15 @@ const findUsersByText = async (text: string, user: Parse.User) => {
   userQuery.notEqualTo('objectId', user.id);
   const result = await userQuery.find({ useMasterKey: true });
   if (result.length > 0) {
-    const promises = result.map((u) => AccountService.findByUser(u, true));
-    const results = await Promise.all(promises);
-    return results.map((a) => a.flat());
+    const results = await Promise.all(
+      result.map((u) => AccountService.findByUser(<Parse.User>u, true)),
+    );
+    return results
+      .filter((a) => a !== undefined)
+      .map((a) => {
+        const account = <Sensbox.Account>a;
+        return account.flat();
+      });
   }
   // If no results, will query on Account Class
   const firstNameQuery = new Parse.Query('Account');
