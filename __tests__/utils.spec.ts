@@ -1,4 +1,9 @@
-import { getQueryAuthOptions, nullParser, getArraysIntersection } from '../src/cloud/utils';
+import {
+  getQueryAuthOptions,
+  nullParser,
+  booleanParser,
+  getArraysIntersection,
+} from '../src/cloud/utils';
 
 let user: Parse.User;
 
@@ -65,5 +70,19 @@ describe('Null Parser tests', () => {
     expect(nullParser(1)).toEqual(1);
     expect(nullParser('text')).toEqual('text');
     expect(nullParser(true)).toEqual(true);
+  });
+});
+
+describe('boolean Parser tests', () => {
+  test('boolean parser should return false', () => {
+    expect(booleanParser('false')).toEqual(false);
+    expect(booleanParser(null)).toEqual(false);
+    expect(booleanParser(false)).toEqual(false);
+  });
+
+  test('boolean parser should return true', async () => {
+    expect(booleanParser(1)).toEqual(true);
+    expect(booleanParser(true)).toEqual(true);
+    expect(booleanParser('true')).toEqual(true);
   });
 });
