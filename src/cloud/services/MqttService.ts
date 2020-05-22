@@ -21,11 +21,10 @@ const createMqttMessage = (uuid: string, topic: string, payload: object): Promis
 
 const disconnectSensors = async (
   sensorsList: Parse.Object[],
-  opts = { commitSave: true },
+  opts: { commitSave: boolean } | undefined = { commitSave: true },
 ): Promise<Parse.Object[]> => {
-  const options = { commitSave: true, ...opts };
   sensorsList.forEach((s) => s.set('connected', false));
-  if (options.commitSave) {
+  if (opts.commitSave) {
     await Parse.Object.saveAll(sensorsList, { useMasterKey: true });
   }
   return sensorsList;
