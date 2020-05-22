@@ -1,6 +1,7 @@
 import express from 'express';
 import http from 'http';
 import ParseServerOptions from './config';
+import { booleanParser } from './cloud/utils';
 
 const { ParseServer } = require('parse-server');
 const ParseDashboard = require('parse-dashboard');
@@ -10,7 +11,7 @@ const defaultDashboardUser = process.env.PARSE_SERVER_DASHBOARD_USER;
 const defaultDashboardPass = process.env.PARSE_SERVER_DASHBOARD_PASS;
 const testUser = process.env.DASHBOARD_TEST_USER;
 const testPass = process.env.DASHBOARD_TEST_PASS;
-const testReadOnly = Boolean(process.env.DASHBOARD_TEST_READONLY) === true;
+const testReadOnly = booleanParser(process.env.DASHBOARD_TEST_READONLY) === true;
 
 const api = new ParseServer(ParseServerOptions);
 const dashboard = new ParseDashboard(

@@ -1,4 +1,4 @@
-const { nullParser } = require('./cloud/utils');
+import { nullParser } from './cloud/utils';
 
 const port = process.env.PORT || 4444;
 const serverURL = process.env.CORE_URL || `http://localhost:${port}/parse`;

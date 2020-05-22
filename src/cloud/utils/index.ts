@@ -66,6 +66,15 @@ const nullParser = (
   return opt;
 };
 
+const booleanParser = (
+  opt?: boolean | string | null | number,
+): string | undefined | null | number | boolean => {
+  if (opt === 'false') {
+    return false;
+  }
+  return opt;
+};
+
 const generateRandomData = () => {
   const data = [];
   const today = new Date();
@@ -79,4 +88,11 @@ const generateRandomData = () => {
   return data;
 };
 
-export { getArraysIntersection, nullParser, generateRandomData, secure, getQueryAuthOptions };
+export {
+  getArraysIntersection,
+  nullParser,
+  booleanParser,
+  generateRandomData,
+  secure,
+  getQueryAuthOptions,
+};
