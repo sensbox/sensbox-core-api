@@ -12,18 +12,20 @@ class Account extends Base {
   static async beforeSave(request: Parse.Cloud.BeforeSaveRequest) {
     await super.beforeSave(request);
     try {
-      const { master, user: requestUser, object: account } = request;
+      const { master, user: requestUser, object: account, installationId } = request;
       if (master) return;
       if (account.isNew()) {
         const email = account.get('email');
         const password = account.get('password');
         const isBanned = !account.get('active');
-        const user = new Parse.User();
-        user.setUsername(email);
-        user.setEmail(email);
-        user.setPassword(password);
-        user.set('isBanned', isBanned);
-        await user.save(null, { useMasterKey: true });
+        const userAttributes = {
+          email,
+          isBanned,
+        };
+        const user = await Parse.User.signUp(email, password, userAttributes, {
+          useMasterKey: true,
+          installationId,
+        });
         account.set('user', user);
 
         // signup via mobile app
