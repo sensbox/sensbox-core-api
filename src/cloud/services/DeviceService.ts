@@ -108,7 +108,9 @@ const enableReadPermissionToUser = async (
   user: Parse.User,
 ): Promise<Parse.Object> => {
   try {
-    const device = await new Parse.Query('Device').equalTo('uuid', uuid).first();
+    const device = await new Parse.Query('Device')
+      .equalTo('uuid', uuid)
+      .first({ useMasterKey: true });
     if (!device) throw new Error(`Cannot find device uuid: ${uuid}`);
     const acl = device.getACL();
     if (acl) {
