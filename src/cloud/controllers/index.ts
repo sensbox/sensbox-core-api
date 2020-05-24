@@ -4,6 +4,7 @@ import MqttController from './MqttController';
 import InfluxController from './InfluxController';
 import AccountController from './AccountController';
 import MapsController from './MapsController';
+import DeviceController from './DeviceController';
 
 export {
   SensorController,
@@ -12,4 +13,5 @@ export {
   DefaultController,
   AccountController,
   MapsController,
+  DeviceController,
 };

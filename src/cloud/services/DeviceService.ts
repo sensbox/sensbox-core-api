@@ -103,6 +103,25 @@ const requestDeviceKey = async (
   return { key };
 };
 
+const enableReadPermissionToUser = async (
+  uuid: string,
+  user: Parse.User,
+): Promise<Parse.Object> => {
+  try {
+    const device = await new Parse.Query('Device').equalTo('uuid', uuid).first();
+    if (!device) throw new Error(`Cannot find device uuid: ${uuid}`);
+    const acl = device.getACL();
+    if (acl) {
+      acl.setReadAccess(user, true);
+      device.setACL(acl);
+      device.save(null, { useMasterKey: true });
+    }
+    return device;
+  } catch (error) {
+    throw new Error(`Cannot enable read access to device ${uuid}. Detail: ${error.message}`);
+  }
+};
+
 export default {
   findDeviceById,
   findDevicesById,
@@ -110,4 +129,5 @@ export default {
   findSensorsByDevice,
   findSensorsByDevicesIds,
   requestDeviceKey,
+  enableReadPermissionToUser,
 };
