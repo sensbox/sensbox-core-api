@@ -18,6 +18,15 @@ class Account extends Base {
         const email = account.get('email');
         const password = account.get('password');
         const isBanned = !account.get('active');
+
+        // If no email and password provided throw an error.
+        if (!(email && password)) {
+          throw new Parse.Error(
+            Parse.Error.EMAIL_MISSING,
+            'Cannot create an account without email and password',
+          );
+        }
+
         const userAttributes = {
           email,
           isBanned,
@@ -27,7 +36,6 @@ class Account extends Base {
           installationId,
         });
         account.set('user', user);
-
         // signup via mobile app
         if (!requestUser) {
           account.set('createdBy', user);
