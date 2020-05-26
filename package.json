@@ -28,6 +28,7 @@
   "license": "MIT",
   "dependencies": {
     "@googlemaps/google-maps-services-js": "^2.6.0",
+    "@sendgrid/mail": "^7.1.1",
     "escape-html": "^1.0.3",
     "express": "^4.17.1",
     "hat": "0.0.3",

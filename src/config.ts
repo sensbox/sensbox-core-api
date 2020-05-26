@@ -1,4 +1,5 @@
 import { nullParser } from './cloud/utils';
+import SimpleSendGridAdapter from './adapters/SendGridAdapter';
 
 const port = process.env.PORT || 4444;
 const serverURL = process.env.CORE_URL || `http://localhost:${port}/parse`;
@@ -35,4 +36,12 @@ export default {
       // "role:admin": []
     },
   },
+  appName: process.env.APP_NAME || 'sensbox',
+  emailAdapter: SimpleSendGridAdapter({
+    apiKey: process.env.SENDGRID_API_KEY || 'sendgridkey',
+    fromAddress: process.env.NOTIFICATION_EMAIL_ADDRESS || 'notifications@sensbox.net',
+  }),
+  verifyUserEmails: process.env.VERIFY_USER_EMAILS || false,
+  emailVerifyTokenValidityDuration: 21600,
+  preventLoginWithUnverifiedEmail: process.env.PREVENT_LOGIN_WITH_UNVERIFIED_EMAIL || false,
 };
