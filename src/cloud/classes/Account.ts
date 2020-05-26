@@ -85,8 +85,8 @@ class Account extends Base {
   static async afterFind(request: Parse.Cloud.AfterFindRequest) {
     const { objects } = request;
     const promises = objects.map(async (account: Parse.Object) => {
-      const user = await account.get('user').fetch({ useMasterKey: true });
-      if (user) {
+      if (account.get('user')) {
+        const user = await account.get('user').fetch({ useMasterKey: true });
         const isAdmin = await SecurityService.hasUserRole(user, RolesType.ADMINISTRATOR);
         account.set('username', user.getUsername());
         account.set('email', user.getEmail());
@@ -99,7 +99,8 @@ class Account extends Base {
   }
 
   static async afterSave(request: Parse.Cloud.AfterSaveRequest) {
-    const account = request.object;
+    const { object: account, master } = request;
+    if (master) return account;
     if (!account.existed()) {
       const { userAccount } = <{ userAccount: Parse.User }>request.context;
       account.set('username', userAccount.getUsername());
