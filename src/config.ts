@@ -1,9 +1,12 @@
-import { nullParser } from './cloud/utils';
+import { nullParser, booleanParser } from './cloud/utils';
 import SimpleSendGridAdapter from './adapters/SendGridAdapter';
 
 const port = process.env.PORT || 4444;
 const serverURL = process.env.CORE_URL || `http://localhost:${port}/parse`;
 const publicServerURL = process.env.PUBLIC_SERVER_URL || serverURL;
+const verifyUserEmails = booleanParser(process.env.VERIFY_USER_EMAILS) || false;
+const preventLoginWithUnverifiedEmail =
+  booleanParser(process.env.PREVENT_LOGIN_WITH_UNVERIFIED_EMAIL) || false;
 
 export default {
   port,
@@ -41,7 +44,7 @@ export default {
     apiKey: process.env.SENDGRID_API_KEY || 'sendgridkey',
     fromAddress: process.env.NOTIFICATION_EMAIL_ADDRESS || 'notifications@sensbox.net',
   }),
-  verifyUserEmails: process.env.VERIFY_USER_EMAILS || false,
+  verifyUserEmails,
   emailVerifyTokenValidityDuration: 21600,
-  preventLoginWithUnverifiedEmail: process.env.PREVENT_LOGIN_WITH_UNVERIFIED_EMAIL || false,
+  preventLoginWithUnverifiedEmail,
 };
