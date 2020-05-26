@@ -106,7 +106,7 @@ class Account extends Base {
       account.set('email', userAccount.getEmail());
       account.set('userSessionToken', userAccount.getSessionToken());
       userAccount.set('account', account);
-      userAccount.save(null, { useMasterKey: true });
+      userAccount.save(null, { cascadeSave: false, useMasterKey: true });
     }
     return account;
   }
