@@ -42,7 +42,7 @@ export default {
   appName: process.env.APP_NAME || 'sensbox',
   emailAdapter: SimpleSendGridAdapter({
     apiKey: process.env.SENDGRID_API_KEY || 'sendgridkey',
-    fromAddress: process.env.NOTIFICATION_EMAIL_ADDRESS || 'notifications@sensbox.net',
+    fromAddress: process.env.NOTIFICATION_EMAIL_ADDRESS || 'sensbox@sensbox.net',
   }),
   verifyUserEmails,
   emailVerifyTokenValidityDuration: 21600,
