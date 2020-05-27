@@ -94,11 +94,15 @@ class Account extends Base {
     const { objects } = request;
     const promises = objects.map(async (account: Parse.Object) => {
       if (account.get('user')) {
-        const user = await account.get('user').fetch({ useMasterKey: true });
-        const isAdmin = await SecurityService.hasUserRole(user, RolesType.ADMINISTRATOR);
-        account.set('username', user.getUsername());
-        account.set('email', user.getEmail());
-        account.set('isAdmin', isAdmin);
+        try {
+          const user = await account.get('user').fetch({ useMasterKey: true });
+          const isAdmin = await SecurityService.hasUserRole(user, RolesType.ADMINISTRATOR);
+          account.set('username', user.getUsername());
+          account.set('email', user.getEmail());
+          account.set('isAdmin', isAdmin);
+        } catch (error) {
+          account.set('isAdmin', false);
+        }
       }
       return account;
     });
