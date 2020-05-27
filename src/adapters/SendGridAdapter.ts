@@ -1,6 +1,4 @@
 import { MailService } from '@sendgrid/mail';
-// eslint-disable-next-line import/no-extraneous-dependencies
-import { MailData } from '@sendgrid/helpers/classes/mail';
 
 const SimpleSendGridAdapter = (mailOptions: { apiKey: string; fromAddress: string }) => {
   if (!mailOptions || !mailOptions.apiKey || !mailOptions.fromAddress) {
@@ -16,7 +14,7 @@ const SimpleSendGridAdapter = (mailOptions: { apiKey: string; fromAddress: strin
     html,
     templateId,
     dynamicTemplateData,
-  }: MailData): Promise<any> => {
+  }: Sensbox.MailTypeRequired): Promise<any> => {
     sendgrid.setApiKey(mailOptions.apiKey);
     const msg = {
       to,

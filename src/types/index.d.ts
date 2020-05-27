@@ -25,11 +25,13 @@ declare namespace Sensbox {
   type MailType = {
     to: string;
     subject: string;
-    text: string;
-    html: string;
-    templateId: string;
-    dynamic_template_data: {};
+    text?: string;
+    html?: string;
+    templateId?: string;
+    dynamicTemplateData?: { [key: string]: any };
   };
+
+  type MailTypeRequired = MailType & ({ text: string } | { html: string } | { templateId: string });
 
   type NotificationDataType = {
     type: NotificationTypesType;
